@@ -6,6 +6,7 @@ import { BiSearch } from 'react-icons/bi';
 import { IoCartOutline } from 'react-icons/io5';
 import { LuBoxes } from 'react-icons/lu';
 import { FaHeart, FaRegUserCircle } from 'react-icons/fa';
+import { HiMiniBars3BottomLeft } from 'react-icons/hi2';
 
 const Header = (props) => {
 
@@ -26,7 +27,7 @@ const Header = (props) => {
           </Link>
 
           {/* search bar */}
-          <div className="bg-blue-100 w-full rounded-xl mx-10 flex justify-center items-center">
+          <div className="bg-blue-100 w-full rounded-lg mx-10 flex justify-center items-center">
             <div className='text-slate-500 flex justify-center items-center w-7 text-2xl m-2 mr-0'><BiSearch /></div>
             <input
               type="search"
@@ -67,6 +68,11 @@ const Header = (props) => {
                   <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register'} />
               : <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register'} />
           }
+        </div>
+
+        <div className='flex'>
+          <HiMiniBars3BottomLeft className='' />
+          Hello
         </div>
       </div>
     </nav>

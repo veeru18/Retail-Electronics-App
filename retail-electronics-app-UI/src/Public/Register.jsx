@@ -1,10 +1,34 @@
-import React from 'react'
+import React, { useState } from 'react'
 import logo from '../Public/Resources/Electron_Logo.jpg'
 import { TfiMobile } from 'react-icons/tfi';
 import { ImHeadphones } from 'react-icons/im';
 import { AiOutlineLaptop } from 'react-icons/ai';
 
 const Register = () => {
+
+  let [ formData, setFormData ] = useState({})
+  const [inputValue, setInputValue] = useState('');
+  const [inputError, setInputError] = useState(false);
+
+  const regex = /^[a-zA-Z0-9]+$/; // regex to match only alphanumeric characters
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log(formData);
+  };
+  const handleInputChange = ({target:{name,value}}) => {
+    //event object destructured here
+    setInputValue(value);
+
+    if (!regex.test(value)) {
+      setInputError(true);
+    } else {
+      setInputError(false);
+    }
+    console.log(inputValue,inputError)
+    setFormData({...formData,[name]:value})
+  };
+  
   return (
     <div className="flex justify-center bg-gray-300 items-center py-24">
       <div id="loginbody" className="w-[800px] h-[400px]  flex ">
@@ -22,35 +46,61 @@ const Register = () => {
         </div>
         <div
           id="loginsec2"
-          className="w-[400px] bg-gray-100 flex justify-around items-center h-[400px] "
+          className="w-[400px] bg-gray-100 rounded-r-md flex justify-around items-center h-[400px] "
         >
-          <div
+          <form onSubmit={handleSubmit}
             id="logsubsec"
             className=" h-[300px] w-[300px] flex flex-col justify-around "
           >
-            <div id="loginpara" className=" text-center text-lg font-bold">
-              <p>LogIn</p>
-            </div>
             <div id="textbox">
-              <p className="font-mono">Enter the Username</p>
+              <span className="mt-auto">Enter Username :</span>
               <input
-                type="text"
-                placeholder="example@gmail.com"
-                className="w-full rounded-md  border-blue-300 border-2 focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm font-mono text-2"
+                name='username'
+                type="text" onChange={handleInputChange}
+                placeholder="Enter Username"
+                className="w-full rounded-md focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm font-mono text-2"
               />
-              <p className="mt-2 font-mono">Enter the Password</p>
+              <span className="mt-auto">Enter the Email :</span>
               <input
-                type="text"
-                className="w-full rounded-md  border-blue-300 border-2 focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm"
-                placeholder="***********"
+                name='email'
+                type="text" onChange={handleInputChange}
+                placeholder="Enter your email"
+                className="w-full rounded-md focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm font-mono text-2"
               />
+
+              <span className="mt-auto">Enter the Password :</span>
+              <input 
+                name='password'
+                type="text" onChange={handleInputChange}
+                className="w-full rounded-md focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm font-mono text-2"
+                placeholder="Enter Password here"
+              />
+              <span className='mt-auto'>Select Account type:</span>
+              <div className='flex justify-evenly -ml-20 items-center p-2'>
+                <span className='seller-radio'>
+                  <input 
+                    id='seller' type='radio' 
+                    onChange={handleInputChange}
+                    name='user-type'
+                  />
+                  <label className='ml-2' htmlFor='seller' >Seller</label>
+                </span>
+                <span className='customer-radio'>
+                  <input 
+                    id='customer' type='radio' 
+                    onChange={handleInputChange}  
+                    name='user-type'
+                  />
+                  <label className='ml-2' htmlFor='customer' >Customer</label>
+                </span>
+              </div>
             </div>
             <div className="flex justify-around items-center">
-              <button className="bg-blue-600 hover:bg-blue-800 font-mono rounded-full w-[70px] text-white text-xl">
-                Login
+              <button type='submit' className="p-2 bg-blue-600 hover:bg-blue-800 font-mono rounded-2xl w-[120px] text-white text-xl">
+                Register
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

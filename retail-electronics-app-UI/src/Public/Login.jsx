@@ -5,7 +5,28 @@ import { ImHeadphones } from 'react-icons/im';
 import { AiOutlineLaptop } from 'react-icons/ai';
 
 const Login = () => {
-  let { formData, setFormData } = useState({})
+  let [ formData, setFormData ] = useState({})
+  const [inputValue, setInputValue] = useState('');
+  const [inputError, setInputError] = useState(false);
+
+  const regex = /^[a-zA-Z0-9]+$/; // regex to match only alphanumeric characters
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log(formData);
+  };
+  const handleInputChange = ({target:{name,value}}) => {
+    //event object destructured here
+    setInputValue(value);
+
+    if (!regex.test(value)) {
+      setInputError(true);
+    } else {
+      setInputError(false);
+    }
+    console.log(inputValue,inputError)
+    setFormData({...formData,[name]:value})
+  };
 
   return (
     <div className="flex justify-center bg-gray-300 items-center py-24">
@@ -26,16 +47,15 @@ const Login = () => {
           id="loginsec2"
           className="w-[400px] bg-gray-100 rounded-r-md flex justify-around items-center h-[400px] "
         >
-          <form action=''
+          <form onSubmit={handleSubmit}
             id="logsubsec"
             className=" h-[300px] w-[300px] flex flex-col justify-around "
           >
-            <div id="loginpara" className=" text-center text-lg font-bold">
-              <p>Login</p>
-            </div>
             <div id="textbox">
               <span className="floating-label">Enter the Email</span>
               <input
+                name='email'
+                onChange={handleInputChange}
                 type="text"
                 placeholder="Enter the Email"
                 className="w-full rounded-md focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm font-mono text-2"
@@ -43,14 +63,16 @@ const Login = () => {
 
               <span className="mt-2">Enter the Password</span>
               <input
+                name='password'
+                onChange={handleInputChange}
                 type="text"
-                className="w-full rounded-md focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm"
+                className="w-full rounded-md focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm font-mono text-2"
                 placeholder="Enter the Password"
               />
 
             </div>
             <div className="flex justify-around items-center">
-              <button className="bg-blue-600 hover:bg-blue-800 font-mono rounded-full w-[70px] text-white text-xl">
+              <button type='submit' className="p-2 bg-blue-600 hover:bg-blue-800 font-mono rounded-2xl w-[120px] text-white text-xl">
                 Login
               </button>
             </div>
