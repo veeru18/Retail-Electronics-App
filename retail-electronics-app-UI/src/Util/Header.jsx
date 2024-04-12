@@ -1,52 +1,87 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../Public/Resources/Electron_Logo.jpg'
-import userlogo from '../Public/Resources/userlogo.png'
-import search from '../Public/Resources/search.png'
-import store from '../Public/Resources/storeicon.png'
+import { MdOutlineStore } from 'react-icons/md';
+import { BiSearch } from 'react-icons/bi';
+import { IoCartOutline } from 'react-icons/io5';
+import { LuBoxes } from 'react-icons/lu';
+import { FaHeart, FaRegUserCircle } from 'react-icons/fa';
 
-function Header() {
-  let [isOpen,setIsOpen]=useState(false);
-  let list=["SignUp"]
+const Header = (props) => {
+
+  let [isOpen, setIsOpen] = useState(false);
+
+  const user = props?.userAuth;
+
+  const { username, authenticated, role } = user;
 
   return (
-    <div className='flex text-lg font-light border-b-2 rounded-sm' >
-      <Link className='flex-wrap ml-20 p-2' to={"/"}>
-        <img className='rounded-lg' src={logo} style={{height:'50px',width:'100px'}} alt="logo"/>
-      </Link>
-      <div className='ml-8 mt-2 mb-2 bg-gray-200 rounded'>
-        <button onClick={()=>{}} className='absolute ml-2 mt-3'>
-        <img className='w-6 h-6' src={search} alt="search" />
-        </button>
-        <input autoFocus  style={{width:'30vw'}} className='rounded mt-1 pl-3 p-1 ml-10 bg-gray-200' placeholder='Search for Products, Brands & more' type="text" name="search" id="searchbox" />
-      </div>
-        <div className=' hover:bg-blue-500 ml-7 pl-3 pt-2 flex-wrap justify-center rounded'>
-          <Link to={"/login"}>
-            <img className='ml-1 mt-3 w-5 h-5' src={userlogo} alt="" />
+    <nav className='bg-white shadow-md text-slate-100 py-2'>
+      <div className="w-11/12 flex items-center justify-evenly">
+        {/* logo and Link block */}
+        <div className='flex h-6 justify-center items-center w-3/6'>
+          {/* logo */}
+          <Link to={'/'} className='w-40'>
+            <img src={logo} alt='logo' className='rounded w-full' />
           </Link>
-          <div className='font-medium -mt-8 ml-5 p-2 mr-4' onMouseEnter={()=>{setIsOpen((prev)=>!prev)}} onMouseLeave={()=>{setIsOpen((prev)=>prev)}}>
-          <Link to={"/login"}>Login</Link>
-            {isOpen && ( 
-              <div className=''>
-              {list.map((item,i)=>(
-                <div className=' font-thin absolute -ml-10 pl-7 p-2 mt-5 w-full rounded' onMouseLeave={()=>{setIsOpen((prev)=>!prev)}} onMouseEnter={()=>{setIsOpen((prev)=>true)}}>
-                  <Link className='' to={"/register"}>New Customer? </Link> 
-                  <Link className='pl-2 font-medium text-blue-700' to={"/register"}>{item}</Link>
-                </div>
-              ))}
-              </div>
-            )
-          }
+
+          {/* search bar */}
+          <div className="bg-blue-100 w-full rounded-xl mx-10 flex justify-center items-center">
+            <div className='text-slate-500 flex justify-center items-center w-7 text-2xl m-2 mr-0'><BiSearch /></div>
+            <input
+              type="search"
+              placeholder="Search for Electronics, Brands and More .."
+              className="p-2 bg-transparent w-full focus:outline-none text-slate-700 placeholder:text-slate-500"
+            />
           </div>
         </div>
-        <div className='flex hover:bg-gray-500 ml-5 p-2 pt-2 rounded'>
-          <Link to={"/register"}>
-            <img className='ml-1 mt-3 w-5 h-5' src={store} alt="" />
+
+        {/* Nav Links */}
+        <div className='text-slate-600 flex border-black justify-evenly items-center w-2/6'>
+          <Link className='flex hover:bg-blue-500 p-3 rounded items-center' to={authenticated ? "/account" : "/login"}
+            onMouseEnter={() => { setIsOpen((prev) => !prev) }} onMouseLeave={() => { setIsOpen((prev) => !prev) }}>
+            <FaRegUserCircle className='mr-2' />
+            {authenticated ?
+              username
+              : <div className=''>Login
+                {isOpen && (
+                  <div className='absolute p-2 mt-3 -ml-8'>
+                    <HeaderLink path={'/register'} linkName={'New Customer? SignUp'} />
+                  </div>
+                  )
+                }
+              </div>
+            }
           </Link>
-          <Link className='font-medium ml-2 mt-2' to={"/register"}>Register as Seller</Link>
+
+          {
+            (user != null && user != undefined) ?
+              (authenticated && role === "CUSTOMER")
+                ? <div className='flex'>
+                  <HeaderLink icon={<FaHeart />} linkName={"Wishlist"} path={'/wishlist'} />
+                  <HeaderLink icon={<IoCartOutline />} linkName={"Cart"} path={'/cart'} />
+                </div>
+                : (authenticated && role === "SELLER")
+                  ? <HeaderLink icon={<LuBoxes />} linkName={"Orders"} path={'/orders'} />
+                  : (!authenticated) &&
+                  <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register'} />
+              : <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register'} />
+          }
         </div>
       </div>
+    </nav>
   )
 }
 
 export default Header
+
+export const HeaderLink = ({ icon, linkName, path }) => {
+  return (
+    <div>
+      <Link className='text-slate-600 flex justify-center items-center' to={path}>
+        <div className='mr-2'>{icon}</div>
+        <div className='mr-3'>{linkName}</div>
+      </Link>
+    </div>
+  );
+}

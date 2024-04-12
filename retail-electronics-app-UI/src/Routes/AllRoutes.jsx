@@ -20,7 +20,8 @@ const AllRoutes = () => {
     // when user directly access URLs we create dummy userAuth object whose role is  authenticated value is false
     const userAuth= {
         userId:123,
-        username:"abc@gmail.com",
+        email:'veeru17@gmail.com',
+        username:"Veeru",
         accessExpiration:3600,
         refreshExpiration:1296000,
         authenticated:false,
@@ -36,13 +37,12 @@ const AllRoutes = () => {
                 routes.push(
                     <Route key={'seller-dashboard'} path='/seller-dashboard' element={<SellerDashboard/>} />,
                     <Route key={'add-product'} path='/add-product' element={<AddProduct/>} />,
-                ):(role=='CUSTOMER')&&
-                routes.push(
-                    <Route key={'orders'} path='/orders' element={<Orders/>} />,
-                    <Route key={'cart'} path='/cart' element={<Cart/>} />,
-                    <Route key={'wishlist'} path='/wishlist' element={<WishList/>} />,
-                    <Route key={'explore'} path='/explore' element={<Explore/>} />
-                )
+                ):(role=='CUSTOMER')    &&  routes.push(
+                            <Route key={'orders'} path='/orders' element={<Orders/>} />,
+                            <Route key={'cart'} path='/cart' element={<Cart/>} />,
+                            <Route key={'wishlist'} path='/wishlist' element={<WishList/>} />,
+                            <Route key={'explore'} path='/explore' element={<Explore/>} />
+                        )
             //common routes only if authenticated
             routes.push(
                 <Route key={'add-address'} path='/add-address' element={<AddAddress/>} />,
@@ -50,7 +50,7 @@ const AllRoutes = () => {
                 <Route key={'home'} path='/' element={<Home/>} />
             )
         }
-        else{ //if not authenticated
+        else{ //if not authenticated he'll stil be dummy user
             routes.push(
                 <Route key={'verify-otp'} path='/verify-otp' element={<VerifyOTP/>} />,
                 <Route key={'login'} path='/login' element={<Login/>}/>,
@@ -68,11 +68,11 @@ const AllRoutes = () => {
                 <Route key={'home'} path='/' element={<Home/>}/>
             )
     }
-    // routes.map((route)=>console.log(route.props.path))
+    routes.map((route)=>console.log(route.props.path))
 
     return (
     <Routes>
-        <Route path='/' element={<App/>}>    
+        <Route path='/' element={<App userAuth={userAuth} />}>    
             {routes}
         </Route>
     </Routes>
