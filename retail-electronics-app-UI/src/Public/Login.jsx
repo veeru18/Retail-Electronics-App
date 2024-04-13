@@ -65,7 +65,7 @@ const Login = () => {
               <input
                 name='password'
                 onChange={handleInputChange}
-                type="text"
+                type="password"
                 className="w-full rounded-md focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm font-mono text-2"
                 placeholder="Enter the Password"
               />
