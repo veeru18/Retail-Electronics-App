@@ -12,7 +12,7 @@ const Header = (props) => {
 
   let [isOpen, setIsOpen] = useState(false);
   let [isMoreOpen, setIsMoreOpen] = useState(false);
-  const links = ["Contact Us", "Terms & Conditions"]
+  const links = ["Contact Us","Terms & Conditions"]
 
   const user = props?.userAuth;
 
@@ -25,7 +25,7 @@ const Header = (props) => {
         <div className='flex h-6 justify-around items-center w-4/6'>
           {/* logo */}
           <Link to={'/'} className='ml-6 w-40'>
-            <img src={logo} alt='logo' className='rounded w-full' />
+            <img title='H' src={logo} alt='logo' className='rounded w-full' />
           </Link>
 
           {/* search bar */}
@@ -43,7 +43,7 @@ const Header = (props) => {
         <div className='text-slate-600 flex border-black justify-evenly items-center w-2/6'>
           <Link className='flex hover:bg-blue-500 p-3 rounded items-center' to={authenticated ? "/account" : "/login"}
             onMouseEnter={() => { setIsOpen((prev) => !prev) }} onMouseLeave={() => { setIsOpen((prev) => !prev) }}>
-            <FaRegUserCircle className='mr-2' />
+            <FaRegUserCircle title='Login' className='mr-2' />
             {authenticated ?
               username
               : <div className=''>Login
@@ -76,7 +76,7 @@ const Header = (props) => {
             <div className='absolute p-2 mt-28 -ml-7'>
               {isMoreOpen && links.map((item) => (
                 <div>
-                  <HeaderLink linkName={item} path={'/'} />
+                  <HeaderLink key={item} linkName={item} path={'/'} />
                 </div>
               ))
               }
@@ -95,7 +95,7 @@ export const HeaderLink = ({ icon, linkName, path }) => {
     <div>
       <Link className='text-slate-600 flex justify-start items-center' to={path}>
         <div className='p-1 mr-1'>{icon}</div>
-        <div className='p-1 mr-2'>{linkName}</div>
+        <div title={linkName} className='p-1 mr-2'>{linkName}</div>
       </Link>
     </div>
   );
