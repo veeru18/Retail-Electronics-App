@@ -17,6 +17,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import com.ecommerce.retail_electronicsapp.exceptions.EmailAlreadyExistsException;
 import com.ecommerce.retail_electronicsapp.exceptions.EmailInvalidException;
 import com.ecommerce.retail_electronicsapp.exceptions.IllegalAccessRequestExcpetion;
+import com.ecommerce.retail_electronicsapp.exceptions.OTPExpiredException;
+import com.ecommerce.retail_electronicsapp.exceptions.RegistrationSessionExpiredException;
 import com.ecommerce.retail_electronicsapp.exceptions.UsernameAlreadyExistsException;
 import com.ecommerce.retail_electronicsapp.service.impl.OTPInvalidException;
 
@@ -50,6 +52,16 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 		return new ResponseEntity<ErrorStructure<String>>(error.setStatuscode(status.value())
 															.setRootCause(rootCause)
 															.setMessage(message),status);
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleOTPExpiredException(OTPExpiredException otpSessionex){
+		return errorResponse(HttpStatus.BAD_REQUEST,otpSessionex.getMessage(),"your OTP verification session expired, please try to get new otp again");
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleRegistrationSessionExpiredException(RegistrationSessionExpiredException regSessionex){
+		return errorResponse(HttpStatus.BAD_REQUEST,regSessionex.getMessage(),"Please register again, your session expired");
 	}
 	
 	@ExceptionHandler
