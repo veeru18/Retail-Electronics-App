@@ -6,7 +6,9 @@ import com.ecommerce.retail_electronicsapp.requestdto.UserRequest;
 import com.ecommerce.retail_electronicsapp.responsedto.UserResponse;
 import com.ecommerce.retail_electronicsapp.utility.ResponseStructure;
 
-public interface UserRegistrationService {
+public interface AuthService {
 	
-	ResponseEntity<ResponseStructure<UserResponse>> userRegistration(UserRequest userRequest);
+	ResponseEntity<String> userRegistration(UserRequest userRequest);
+
+	ResponseEntity<ResponseStructure<UserResponse>> verifyOTP(String otp);
 }

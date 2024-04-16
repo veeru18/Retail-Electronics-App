@@ -6,4 +6,6 @@ import com.ecommerce.retail_electronicsapp.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Integer> {
 
+	boolean existsByEmail(String email);
+
 }

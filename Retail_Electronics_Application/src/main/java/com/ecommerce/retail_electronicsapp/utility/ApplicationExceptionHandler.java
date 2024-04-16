@@ -18,6 +18,7 @@ import com.ecommerce.retail_electronicsapp.exceptions.EmailAlreadyExistsExceptio
 import com.ecommerce.retail_electronicsapp.exceptions.EmailInvalidException;
 import com.ecommerce.retail_electronicsapp.exceptions.IllegalAccessRequestExcpetion;
 import com.ecommerce.retail_electronicsapp.exceptions.UsernameAlreadyExistsException;
+import com.ecommerce.retail_electronicsapp.service.impl.OTPInvalidException;
 
 import lombok.AllArgsConstructor;
 
@@ -59,6 +60,10 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 	@ExceptionHandler
 	public ResponseEntity<ErrorStructure<String>> handleEmailInvalidException(EmailInvalidException eminex){
 		return errorResponse(HttpStatus.BAD_REQUEST,eminex.getMessage(),"User Email Already exists! please enter a Valid Email ID");
+	}
+	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleOTPInvalidException(OTPInvalidException otpex){
+		return errorResponse(HttpStatus.BAD_REQUEST,otpex.getMessage(),"User Email persisted! please enter a Valid OTP that's sent to your email");
 	}
 	
 	@ExceptionHandler
