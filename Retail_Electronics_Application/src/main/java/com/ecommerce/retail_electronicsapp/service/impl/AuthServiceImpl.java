@@ -15,6 +15,8 @@ import com.ecommerce.retail_electronicsapp.exceptions.EmailAlreadyExistsExceptio
 import com.ecommerce.retail_electronicsapp.exceptions.IllegalAccessRequestExcpetion;
 import com.ecommerce.retail_electronicsapp.exceptions.OTPExpiredException;
 import com.ecommerce.retail_electronicsapp.exceptions.RegistrationSessionExpiredException;
+import com.ecommerce.retail_electronicsapp.mailservice.MailService;
+import com.ecommerce.retail_electronicsapp.mailservice.MessageModel;
 import com.ecommerce.retail_electronicsapp.repository.UserRepository;
 import com.ecommerce.retail_electronicsapp.requestdto.OTPRequest;
 import com.ecommerce.retail_electronicsapp.requestdto.UserRequest;
@@ -23,6 +25,7 @@ import com.ecommerce.retail_electronicsapp.service.AuthService;
 import com.ecommerce.retail_electronicsapp.utility.ResponseStructure;
 import com.ecommerce.retail_electronicsapp.utility.SimpleResponseStructure;
 
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -36,29 +39,52 @@ public class AuthServiceImpl implements AuthService {
 	private CacheStore<User> userCache;
 	private ResponseStructure<UserResponse> respStruct;
 	private SimpleResponseStructure simpleResponse;
+	private MailService mailService;
 
 	@Override
-	public ResponseEntity<SimpleResponseStructure> userRegistration(UserRequest userRequest) {
+	public ResponseEntity<SimpleResponseStructure> userRegistration(UserRequest userRequest) throws MessagingException {
 		if(userRepository.existsByEmail(userRequest.getEmail())) throw new EmailAlreadyExistsException("Email Already exists! please re-verify your account");
 		User user=mapToUsersChildEntity(userRequest);
 		String otp=generateOTP();
-		String email=user.getEmail();
-		otpCache.add(email, otp);
- 		userCache.add(email, user);
+		otpCache.add(user.getEmail(), otp);
+ 		userCache.add(user.getEmail(), user);
  		System.out.println(otp);
 		
 		//should send otp to mail
-		return ResponseEntity.status(HttpStatus.ACCEPTED)
+ 		sendOTP(user,otp);
+ 		return ResponseEntity.status(HttpStatus.ACCEPTED)
 							.body(simpleResponse
-									.setMessage("verify otp sent through mail to complete registration,OTP exp")
+									.setMessage("verify otp sent through mail to complete registration,OTP expires in 5 minutes")
 									.setStatus(HttpStatus.ACCEPTED.value()));
+	}
+
+	private void sendOTP(User user, String otp) throws MessagingException {
+		MessageModel model = MessageModel.builder().to(user.getEmail())
+								.subject("Email Verification")
+								.message(
+											"<p>Hi, <br>"
+											+ "Thank you for showing interest to shop in Retail Electronics,"
+											+ " please Verify your Email ID : "+user.getEmail()+" using the OTP given below.</p>"
+											+ "<br>"
+											+ "<h1> OTP : "+otp+"</h1>"
+											+ "<br><br>"
+											+ "<p>Please Ignore if you haven't requested for verification</p>"
+											+ "<br>"
+											+ "<p>With best regards,</p>"
+											+ "<h3>Retail Electronics</h3>"
+											+ "<img src="+"'https://i.postimg.cc/h4HtBx5V/Electron-Logo.jpg'"+" alt='retail logo'/>"
+										)
+								.build();
+		mailService.sendMessage(model);
 	}
 
 	@Override
 	public ResponseEntity<ResponseStructure<UserResponse>> verifyOTP(OTPRequest otpRequest) {
 		String email=otpRequest.getEmail(); //can't be null after validations
+
 		if(otpCache.get(email)==null) throw new OTPExpiredException("OTP Has expired, please register again");
 		if(!otpCache.get(email).equals(otpRequest.getOtp())) throw new OTPInvalidException("please enter valid OTP");
+		
 		User user=userCache.get(email);// will be either Customer (or) Seller
 		if(user==null) throw new RegistrationSessionExpiredException("User , please register again");
 		user.setEmailVerified(true);

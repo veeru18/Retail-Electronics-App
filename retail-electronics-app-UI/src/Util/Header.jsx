@@ -67,8 +67,8 @@ const Header = (props) => {
                 : (authenticated && role === "SELLER")
                   ? <HeaderLink icon={<LuBoxes />} linkName={"Orders"} path={'/orders'} />
                   : (!authenticated) &&
-                  <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register'} />
-              : <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register'} />
+                  <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register-seller'} />
+              : <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register-seller'} />
           }
           <div className='flex hover:bg-blue-500 p-3 rounded items-center'
             onMouseEnter={() => { setIsMoreOpen((prev) => !prev) }} onMouseLeave={() => { setIsMoreOpen((prev) => !prev) }}>

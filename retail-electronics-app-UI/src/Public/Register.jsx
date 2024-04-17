@@ -1,28 +1,43 @@
+import { useNavigate } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import logo from '../Public/Resources/Electron_Logo.jpg'
 import { TfiMobile } from 'react-icons/tfi';
 import { ImHeadphones } from 'react-icons/im';
 import { AiOutlineLaptop } from 'react-icons/ai';
+import axios from 'axios';
 
-const Register = () => {
+const Register = ({ role }) => {
 
+  const navigate=useNavigate()
   let [formData, setFormData] = useState({})
   const [inputValue, setInputValue] = useState('');
   const [emailInputError, setEmailInputError] = useState(false);
   const [passInputError, setPassInputError] = useState(false);
+  const [nameError, setNameError] = useState(false)
 
   const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$/;
   // regex to match atleast one uppercase, one special character, one number and must be 8 characters or more
   const emailRegex = /^[a-zA-Z0-9]+[a-zA-Z0-9._%+-]*@gmail\.com$/;
+  const nameRegex = /^[a-zA-Z0-9]+/;
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(formData);
+    let {email}=formData
+    let {data}= await axios.post(`http://localhost:8080/api/re-v1/register`,formData);
+    console.log(data,email)
+    navigate("/verify-otp", { state: { data: email } });
   };
   const handleInputChange = ({ target: { name, value } }) => {
     //event object destructured here
     setInputValue(value);
+    console.log(formData)
 
+    if (name === 'name' && !nameRegex.test(value)) {
+      setNameError(true);
+    } else {
+      setNameError(false);
+      setFormData({ ...formData, [name]: value })
+    }
     if (name === 'email' && !emailRegex.test(value)) {
       setEmailInputError(true);
     } else {
@@ -38,7 +53,8 @@ const Register = () => {
   };
 
   useEffect(() => {
-  }, [])
+    setFormData({ ...formData, ['role']: role });
+  }, []);
 
   return (
     <div className="flex justify-center bg-gray-300 items-center h-dvh">
@@ -64,9 +80,9 @@ const Register = () => {
             className=" h-[300px] w-[300px] flex flex-col justify-around "
           >
             <div id="textbox" className='py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7'>
-            <div className='relative'>
+              <div className='relative'>
                 <input id='name'
-                  name='name'
+                  name='name' key={'name'}
                   onChange={handleInputChange}
                   type="text"
                   placeholder="Enter the Name"
@@ -74,10 +90,12 @@ const Register = () => {
                 />
                 <label for="name" class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440
                            peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Username</label>
+                {nameError && <p className="text-red-500 text-sm mt-1">Please enter alphanumeric name.</p>}
               </div>
+
               <div className='relative'>
                 <input id='email'
-                  name='email'
+                  name='email' key={'email'}
                   onChange={handleInputChange}
                   type="text"
                   placeholder="Enter the Email"
@@ -89,7 +107,7 @@ const Register = () => {
               </div>
               <div className='relative'>
                 <input id='password'
-                  name='password'
+                  name='password' key={'password'}
                   onChange={handleInputChange}
                   type="password"
                   placeholder="Enter the Password"
@@ -100,7 +118,7 @@ const Register = () => {
                 {passInputError && <p className="text-red-500 text-sm mt-1">Password should have 8+ and atleast one uppercase, one special character, one number</p>}
               </div>
 
-              <span className='mt-auto'>Select Account type:</span>
+              {/* <span className='mt-auto'>Select Account type:</span>
               <div className='flex justify-evenly -ml-20 items-center p-2'>
                 <span className='seller-radio'>
                   <input
@@ -120,7 +138,7 @@ const Register = () => {
                   />
                   <label className='ml-2' htmlFor='customer' >Customer</label>
                 </span>
-              </div>
+              </div> */}
 
             </div>
             <div className="flex justify-around items-center">

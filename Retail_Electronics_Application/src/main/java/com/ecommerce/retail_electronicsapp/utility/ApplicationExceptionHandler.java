@@ -7,6 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -55,6 +56,11 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 	}
 	
 	@ExceptionHandler
+	public ResponseEntity<ErrorStructure<String>> handleUsernameNotFoundException(UsernameNotFoundException securityloginuserex){
+		return errorResponse(HttpStatus.NOT_FOUND,securityloginuserex.getMessage(),"your OTP verification session expired, please try to get new otp again");
+	}
+	
+	@ExceptionHandler
 	public ResponseEntity<ErrorStructure<String>> handleOTPExpiredException(OTPExpiredException otpSessionex){
 		return errorResponse(HttpStatus.BAD_REQUEST,otpSessionex.getMessage(),"your OTP verification session expired, please try to get new otp again");
 	}
@@ -66,7 +72,7 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 	
 	@ExceptionHandler
 	public ResponseEntity<ErrorStructure<String>> handleEmailAlreadyExistsException(EmailAlreadyExistsException emailex){
-		return errorResponse(HttpStatus.BAD_REQUEST,emailex.getMessage(),"User Email Already exists! please enter a Valid Email ID");
+		return errorResponse(HttpStatus.FOUND,emailex.getMessage(),"User Email Already exists! please enter a Valid Email ID");
 	}
 	
 	@ExceptionHandler
@@ -80,7 +86,7 @@ public class ApplicationExceptionHandler extends ResponseEntityExceptionHandler 
 	
 	@ExceptionHandler
 	public ResponseEntity<ErrorStructure<String>> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException nameex){
-		return errorResponse(HttpStatus.BAD_REQUEST,nameex.getMessage(),"User Name Already exists! please enter a Valid Username");
+		return errorResponse(HttpStatus.FOUND,nameex.getMessage(),"User Name Already exists! please enter a Valid Username");
 	}
 	
 	@ExceptionHandler

@@ -13,6 +13,7 @@ import com.ecommerce.retail_electronicsapp.service.AuthService;
 import com.ecommerce.retail_electronicsapp.utility.ResponseStructure;
 import com.ecommerce.retail_electronicsapp.utility.SimpleResponseStructure;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
@@ -24,7 +25,7 @@ public class AuthController {
 	private AuthService authService;
 	
 	@PostMapping("/register")
-	public ResponseEntity<SimpleResponseStructure> userRegistration(@RequestBody @Valid UserRequest userRequest) {
+	public ResponseEntity<SimpleResponseStructure> userRegistration(@RequestBody @Valid UserRequest userRequest) throws MessagingException {
 		return authService.userRegistration(userRequest);
 	}
 	
