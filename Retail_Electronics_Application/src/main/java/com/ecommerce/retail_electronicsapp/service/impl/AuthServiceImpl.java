@@ -137,7 +137,7 @@ public class AuthServiceImpl implements AuthService {
 		User user=userCache.get(email);// will be either Customer (or) Seller
 		if(user==null) throw new RegistrationSessionExpiredException("User , please register again");
 		user.setEmailVerified(true);
-		user=userRepository.save(user);
+//		user=userRepository.save(user);
 		return ResponseEntity.status(HttpStatus.CREATED).body(respStruct.setStatusCode(HttpStatus.CREATED.value())
 																.setMessage("OTP verified succesfully")
 																.setData(mapToUserResponse(user)));
@@ -158,7 +158,7 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	User mapToUsersChildEntity(UserRequest userRequest) {
-		UserRole role=userRequest.getRole();
+		UserRole role=userRequest.getUserRole();
 		User user=null;
 		
 		switch(role) {
@@ -236,6 +236,8 @@ public class AuthServiceImpl implements AuthService {
 		return AuthResponse.builder().userId(user.getUserId())
 								.username(user.getUsername())
 								.userRole(user.getUserRole())
+								.authenticated(user.isEmailVerified())
+								.displayName(user.getDisplayName())
 								.accessExpiration(accessExpiry)
 								.refreshExpiration(refreshExpiry)
 								.build();

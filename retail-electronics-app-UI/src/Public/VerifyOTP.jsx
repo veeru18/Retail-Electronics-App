@@ -8,7 +8,7 @@ import { useAuth } from '../Auth/AuthProvider';
 import usePreviousPath from '../Routes/usePreviousPath';
 
 const VerifyOTP = () => {
-  const { user, updateUser } = useAuth()
+  const { user, setUser } = useAuth()
   const { state } = useLocation();
   const previousPath = usePreviousPath();
   const email = state && state?.data;
@@ -20,9 +20,6 @@ const VerifyOTP = () => {
   const navigate = useNavigate()
   const Otpregex = /^(\d{6})$/;
 
-  if (!email) {
-    return <Navigate to="/" replace />;
-  }
   const handleOTPChange = (name, value) => {
     setOTP(value);
     if (name === 'otp' && !Otpregex.test(value)) setOtpLenError(true);
@@ -40,10 +37,10 @@ const VerifyOTP = () => {
       const { data } = await axios.post(`http://localhost:8080/api/re-v1/verify-email`, otpData);
       // console.log(data);
       setButtonChange(true)
-      navigate("/", { state: { userResponse: data } });
+      navigate("/", { state: { success:"register", userResponse: data } });
     } catch (error) {
       setButtonChange(false)
-      console.error(error.data?.rootCause);
+      alert(error.data?.rootCause);
     }
   }
 

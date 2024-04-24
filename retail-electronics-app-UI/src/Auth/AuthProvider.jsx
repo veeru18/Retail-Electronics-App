@@ -7,35 +7,17 @@ export const authContext=createContext({})
 const AuthProvider = ({children}) => {
     const [user, setUser] = useState({
         userId:"",
-        role:"CUSTOMER",
+        userRole:"CUSTOMER",
         username:"",
-        displayName:"",
         authenticated:false,
         accessExpiration:0,
         refreshExpiration:0
     });
 
-    useEffect(() => {
-        // Load user authentication details from local storage or an API
-        sessionStorage.setItem("user", JSON.stringify(user));
-        // const storedUser = JSON.parse(localStorage.getItem("user"));
-        // if (storedUser) {
-        //     setUser(storedUser);
-        // }
-    }, []);
-
-    const updateUser=(newUser)=>{
-        sessionStorage.setItem("user", JSON.stringify(newUser));
-        setUser(newUser)
-    }
-
-    const logout = () => {
-        sessionStorage.removeItem("user");
-        setUser(null);
-    };
+    useEffect(() => console.log(user), [user])
 
     return (
-        <authContext.Provider value={{user,setUser,updateUser,logout}}>
+        <authContext.Provider value={{user,setUser}}>
             {children}
         </authContext.Provider>
     );

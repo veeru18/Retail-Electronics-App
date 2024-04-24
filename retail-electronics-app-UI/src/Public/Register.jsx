@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import logo from '../Public/Resources/Electron_Logo.jpg'
 import { TfiMobile } from 'react-icons/tfi';
@@ -10,14 +10,17 @@ import Button from './../Util/Button';
 import Label from './../Util/Label';
 import { useAuth } from '../Auth/AuthProvider';
 
-const Register = ({ role }) => {
-  const { user, updateUser } = useAuth()
+const Register = () => {
+  const { user, setUser } = useAuth()
   const navigate = useNavigate()
+  const location=useLocation()
+  // console.log(location?.pathname)
+  let path=location?.pathname
   let [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: role
+    userRole: path==="/register"?"CUSTOMER":path==="/register-seller"?"SELLER":"CUSTOMER"
   })
   const [emailInputError, setEmailInputError] = useState(false);
   const [passInputError, setPassInputError] = useState(false);
@@ -28,7 +31,11 @@ const Register = ({ role }) => {
   // regex to match atleast one uppercase, one special character, one number and must be 8 characters or more
   const emailRegex = /^[a-zA-Z0-9]+[a-zA-Z0-9._%+-]*@gmail\.com$/;
   const nameRegex = /^[a-zA-Z0-9]+/;
+  const [showPassword, setShowPassword] = useState(false);
 
+  const showOrHidePassHandle = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
   const handleSubmit = async (event) => {
     alert("submitted")
     let { email } = formData
@@ -40,12 +47,12 @@ const Register = ({ role }) => {
           }
         });
       setButtonChange(true)
-      console.log(data, email)
-      updateUser({ ...user, username: email.split("@gmail.com") })
+      // console.log(data, email)
+      setUser({ ...user, username: email.split("@gmail.com") })
       navigate("/verify-otp", { state: { data: email } });
     }
     catch (error) {
-      console.log(error)
+      // console.log(error)
       setButtonChange(false)
       alert(error.data?.data?.rootCause)
     }
@@ -62,25 +69,21 @@ const Register = ({ role }) => {
     }
     else if (name === 'email') {
       setFormData({ ...formData, email: value });
-      if (!emailRegex.test(value)) setEmailInputError(true);
-      else {
-        setEmailInputError(false);
-
-      }
+      if (value==='') setEmailInputError(false)
+      else if (!emailRegex.test(value)) setEmailInputError(true);
+      else setEmailInputError(false);
     }
     else if (name === 'password') {
       setFormData({ ...formData, password: value });
-      if (!passwordRegex.test(value)) setPassInputError(true);
-      else {
-        setPassInputError(false);
-
-      }
+      if (value==='') setPassInputError(false);
+      else if (!passwordRegex.test(value)) setPassInputError(true);
+      else setPassInputError(false);
     }
   };
 
   useEffect(() => {
 
-  }, []);
+  }, [location]);
 
   return (
     <div className="flex justify-center bg-gray-300 items-center h-dvh">
@@ -89,7 +92,7 @@ const Register = ({ role }) => {
           id="loginsec1"
           className="w-[400px] h-[400px] flex flex-col justify-evenly rounded-l-md  items-center bg-blue-700 "
         >
-          <div className='italic text-3xl font-bold'>Register as {role.toLowerCase()}</div>
+          <div className='text-3xl font-bold'>Register as <i>{formData?.userRole.toLowerCase()}</i></div>
           <div className='flex'>
             <img className='rounded ' src={logo} alt="" height="100px" width="100px" />
             <AiOutlineLaptop className='mt-auto h-8 w-8' />
@@ -134,16 +137,26 @@ const Register = ({ role }) => {
                 {emailInputError && <p className="text-red-500 text-sm mt-1">Please enter a valid Gmail ID.</p>}
               </div>
               <div className='relative'>
-                <Input id={'password'}
-                  name={'password'}
+                <Input
+                  id="password"
+                  name="password"
                   onChange={handleInputChange}
-                  type={"password"}
-                  value={formData?.password}
-                  placeholder={"Enter the Password"}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter the Password"
                 />
-                <Label htmlFor={"password"}
-                  label={'Password'}
-                />
+                <Label htmlFor="password" label="Password" />
+                <div className="mt-4 flex items-center text-gray-500">
+                  <input
+                    onClickCapture={showOrHidePassHandle}
+                    type="checkbox"
+                    id="showpassword"
+                    name="showpassword"
+                    className="mr-2"
+                  />
+                  <label className="text-sm" htmlFor="showpassword">
+                    Show password
+                  </label>
+                </div>
                 {passInputError && <p className="text-red-500 text-sm mt-1">Password should have 8+ and atleast one uppercase, one special character, one number</p>}
               </div>
             </div>

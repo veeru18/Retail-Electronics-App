@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import logo from '../Public/Resources/Electron_Logo.jpg'
 import { MdOutlineStore } from 'react-icons/md';
-import { BiSearch } from 'react-icons/bi';
+import { BiDoorOpen, BiSearch } from 'react-icons/bi';
 import { IoCartOutline } from 'react-icons/io5';
 import { LuBoxes } from 'react-icons/lu';
 import { FaHeart, FaRegUserCircle } from 'react-icons/fa';
@@ -10,21 +10,19 @@ import { HiMiniBars3BottomLeft } from 'react-icons/hi2';
 import { useAuth } from '../Auth/AuthProvider';
 import { RxExit } from 'react-icons/rx';
 
-const Header = ({users}) => {
+const Header = () => {
 
-  let name=null
-  if(users) {
-    const {displayName}=users;
-    console.log(displayName,users)
-    name=displayName
-  }
   let [isOpen, setIsOpen] = useState(false);
   let [isMoreOpen, setIsMoreOpen] = useState(false);
   const links = ["Contact Us", "Terms & Conditions"]
 
-  const { user, updateUser } = useAuth()
+  const { user } = useAuth()
 
-  const { username, authenticated, role } = user;
+  const { username, displayName, authenticated, userRole } = user;
+
+  useEffect(() => {
+    console.log(username, authenticated, userRole)
+  }, [user])
 
   return (
     <nav className='bg-white shadow-md text-slate-100 py-2'>
@@ -49,47 +47,52 @@ const Header = ({users}) => {
 
         {/* Nav Links */}
         <div className='text-slate-600 flex border-black justify-evenly items-center w-2/6'>
-          <div className='flex hover:bg-blue-500 p-3 rounded items-center'
+          <div className='flex group-hover:text-slate-100 transition ease-in-out hover:bg-blue-400 p-3 rounded items-center'
             onMouseEnter={() => { setIsOpen((prev) => !prev) }} onMouseLeave={() => { setIsOpen((prev) => !prev) }}>
-            <HeaderLink icon={<FaRegUserCircle title='User' className='-mr-2' />} path={authenticated ? "/account" : "/login"} />
+            <HeaderLink 
+              icon={<FaRegUserCircle title='User' className='' />}
+              path={authenticated ? "/account" : "/login"}
+              linkName={authenticated ? displayName : "Login"} />
             {authenticated ?
               <div>
-                <Link to={'/account'} className='-ml-1'>{name}</Link>
+                {/* <Link to={'/account'} className='-ml-1'>{username}</Link> */}
                 {isOpen && (
-                  <Link to={'/'} className='absolute p-2 mt-7 -ml-[88px]' >
-                    <p className='flex p-2'>
-                      <RxExit className='mt-1 mr-2' title='Logout' />Logout
-                    </p>
-                  </Link>
+                  <div className='absolute bg-white rounded p-1 mt-7 -ml-24' >
+                    <HeaderLink
+                      icon={<RxExit size={'18px'} className='' title='Logout' />}
+                      linkName={'Logout'} path={'/'} />
+                  </div>
                 )}
               </div>
-              : <Link to={'login'} className='-ml-1'>Login
+              :<div>
                 {isOpen && (
-                  <div className='absolute p-2 mt-3 -ml-16'>
-                    <HeaderLink path={'/register'} linkName={'New Customer? SignUp'} />
+                  <div className='absolute bg-white rounded p-1 mt-7 -ml-24'>
+                    <HeaderLink 
+                    icon={<RxExit size={'18px'} className='' title='Signup'/>}
+                    path={'/register'} linkName={<p title='Signup'><i>New Customer?</i> SignUp</p>} />
                   </div>
-                )
+                  )
                 }
-              </Link>
+                </div>
             }
           </div>
 
           {
             (user != null && user != undefined) ?
-              (authenticated && role === "CUSTOMER")
+              (authenticated && userRole === "CUSTOMER")
                 ? <div className='flex'>
                   <HeaderLink icon={<FaHeart title='Wishlist' />} linkName={"Wishlist"} path={'/wishlist'} />
                   <HeaderLink icon={<IoCartOutline title='Cart' />} linkName={"Cart"} path={'/cart'} />
                 </div>
-                : (authenticated && role === "SELLER")
+                : (authenticated && userRole === "SELLER")
                   ? <HeaderLink icon={<LuBoxes title='Orders' />} linkName={"Orders"} path={'/orders'} />
                   : (!authenticated) &&
                   <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register-seller'} />
               : <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register-seller'} />
           }
-          <div className='flex hover:bg-blue-500 p-3 rounded items-center'
+          <div className='flex transition ease-in-out hover:bg-slate-100 p-3 rounded items-center'
             onMouseEnter={() => { setIsMoreOpen((prev) => !prev) }} onMouseLeave={() => { setIsMoreOpen((prev) => !prev) }}>
-            <HiMiniBars3BottomLeft title='More'/>
+            <HiMiniBars3BottomLeft title='More' />
             <div className='absolute p-2 mt-28 -ml-7'>
               {isMoreOpen && links.map((item) => (
                 <div>
@@ -111,8 +114,8 @@ export const HeaderLink = ({ icon, linkName, path }) => {
   return (
     <div>
       <Link className='text-slate-600 flex justify-start items-center' to={path}>
-        <div className='p-1 mr-1'>{icon}</div>
-        <div title={linkName} className='p-1 mr-2'>{linkName}</div>
+        {icon && <div className='p-1 mr-1'>{icon}</div>}
+        {linkName && <div title={linkName} className='p-1 mr-2'>{linkName}</div>}
       </Link>
     </div>
   );

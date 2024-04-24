@@ -28,6 +28,6 @@ public class UserRequest {
 	@NotNull @NotBlank
 	private String password;
 	@NotNull(message = "Please specify User role")
-	private UserRole role;
+	private UserRole userRole;
 	
 }
