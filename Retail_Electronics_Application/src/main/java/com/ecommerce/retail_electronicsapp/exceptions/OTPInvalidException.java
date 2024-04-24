@@ -1,4 +1,4 @@
-package com.ecommerce.retail_electronicsapp.service.impl;
+package com.ecommerce.retail_electronicsapp.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -3,41 +3,63 @@ import logo from '../Public/Resources/Electron_Logo.jpg'
 import { TfiMobile } from 'react-icons/tfi';
 import { ImHeadphones } from 'react-icons/im';
 import { AiOutlineLaptop } from 'react-icons/ai';
+import Input from '../Util/Input';
+import Label from '../Util/Label';
+import Button from '../Util/Button';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Auth/AuthProvider';
+import axios from 'axios';
 
 const Login = () => {
-  let [formData, setFormData] = useState({})
-  const [inputValue, setInputValue] = useState('');
-  const [emailInputError, setEmailInputError] = useState(false);
+  const { user, updateUser } = useAuth()
+  const navigate=useNavigate
+  let [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  })
+  const [usernameInputError, setUsernameInputError] = useState(false);
   const [passInputError, setPassInputError] = useState(false);
 
   const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$/;
   // regex to match atleast one uppercase, one special character, one number and must be 8 characters or more
-  const emailRegex = /^[a-zA-Z0-9]+[a-zA-Z0-9._%+-]*@gmail\.com$/;
+  const usernameRegex = /^[a-zA-Z0-9]+[a-zA-Z0-9._%+-]*@gmail\.com$/;
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(formData);
-  };
-  const handleInputChange = ({ target: { name, value } }) => {
-    //event object destructured here
-    setInputValue(value);
-
-    if (name === 'email' && !emailRegex.test(value)) {
-      setEmailInputError(true);
-    } else {
-      setEmailInputError(false);
-      setFormData({ ...formData, [name]: value })
+  const handleSubmit = async () => {
+    let { username } = formData
+    try {
+      let { data } = await axios.post(`http://localhost:8080/api/re-v1/login`, formData,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+      console.log(formData)
+      console.log(data)
+      // hook can't be navigated to another without being inside tags/with no operation done in normal method
+      // navigate("/", { state: { data: username } });
     }
-    if (name === 'password' && !passwordRegex.test(value)) {
-      setPassInputError(true);
-    } else {
-      setPassInputError(false);
-      setFormData({ ...formData, [name]: value })
+    catch (error) {
+      console.log(error)
+      alert(error.data?.data?.rootCause)
+    }
+  };
+  const handleInputChange = (name, value) => {
+    //event object destructured here
+    if (name === 'username') {
+      setFormData({ ...formData, username: value });
+      if (!usernameRegex.test(value)) setUsernameInputError(true);
+      else setUsernameInputError(false);
+    }
+    else if (name === 'password') {
+      setFormData({ ...formData, password: value });
+      if (!passwordRegex.test(value)) setPassInputError(true);
+      else setPassInputError(false);
     }
   };
 
   useEffect(() => {
-  }, [])
+
+  }, []);
 
   return (
     <div className="flex justify-center bg-gray-300 items-center py-24">
@@ -46,7 +68,7 @@ const Login = () => {
           id="loginsec1"
           className="w-[400px] h-[400px] flex flex-col justify-evenly rounded-l-md  items-center bg-blue-700 "
         >
-          <div className='italic -ml-24 mb-20 text-3xl font-bold'>Login</div>
+          <div className='italic -ml-24 text-3xl font-bold'>Login</div>
           <div className='flex'>
             <img className='rounded ' src={logo} alt="" height="100px" width="100px" />
             <AiOutlineLaptop className='mt-auto h-8 w-8' />
@@ -58,42 +80,36 @@ const Login = () => {
           id="loginsec2"
           className="w-[400px] bg-gray-100 rounded-r-md flex justify-around items-center h-[400px] "
         >
-          <form onSubmit={handleSubmit}
+          <div
             id="logsubsec"
             className=" h-[300px] w-[300px] flex flex-col justify-around "
           >
             <div id="textbox" className='py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7'>
               <div className='relative'>
-                <input id='email'
-                  name='email'
+                <Input id='username'
+                  name='username'
                   onChange={handleInputChange}
                   type="text"
-                  placeholder="Enter the Email"
-                  className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
+                  placeholder="Enter the Email or Username"
                 />
-                <label for="email" class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440
-                           peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Email Address</label>
-                {emailInputError && <p className="text-red-500 text-sm mt-1">Please enter a valid Gmail ID.</p>}
+                <Label htmlFor="username" label='Username/Email' />
+                {usernameInputError && <p className="text-red-500 text-sm mt-1">Please enter a valid Gmail ID.</p>}
               </div>
               <div className='relative'>
-                <input id='password'
+                <Input id='password'
                   name='password'
                   onChange={handleInputChange}
                   type="password"
-                  className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
                   placeholder="Enter the Password"
                 />
-                <label for="password" class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440
-                           peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Password</label>
+                <Label htmlFor="password" label='Password' />
                 {passInputError && <p className="text-red-500 text-sm mt-1">Password should have 8+ and atleast one uppercase, one special character, one number</p>}
               </div>
             </div>
             <div className="flex justify-around items-center">
-              <button type='submit' className="p-2 bg-blue-600 hover:bg-blue-800 font-mono rounded-2xl w-[120px] text-white text-xl">
-                Login
-              </button>
+              <Button text='Login' onClick={handleSubmit} />
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

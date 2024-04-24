@@ -2,14 +2,19 @@ package com.ecommerce.retail_electronicsapp.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.ecommerce.retail_electronicsapp.jwt.JwtFilter;
 
 import lombok.AllArgsConstructor;
 
@@ -18,19 +23,22 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class SecurityConfig {
 	
+	private JwtFilter jwtFilter;
+	
 	private RetailUserDetailService userDetailService;
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		return http.csrf(csrf->csrf.disable())
-				//only one HttpMethod and String[] is allowed for this overloaded method
-//				.authorizeHttpRequests(auth->auth.requestMatchers(HttpMethod.GET,"/users/{userId}").hasAuthority("read"))
-//				.authorizeHttpRequests(auth->auth.requestMatchers(HttpMethod.PUT,"/users/{userId}").hasAuthority("write"))
-//				.authorizeHttpRequests(auth->auth.requestMatchers(HttpMethod.POST,"/users/register").hasAuthority("write"))
-				.authorizeHttpRequests(auth->auth.requestMatchers
-						("/api/re-v1","/api/re-v1/register","/api/re-v1/verify-email")
-						.permitAll().anyRequest().authenticated())
-				.formLogin(Customizer.withDefaults())
+		return http
+				.authorizeHttpRequests(auth->auth
+						.requestMatchers("/**").permitAll()
+						.anyRequest().authenticated())
+				.csrf(csrf->csrf.disable())
+				.sessionManagement(managementConfigure-> managementConfigure.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				//jwt authentication is stateless authentication which doesn't store any data in App server
+				.authenticationProvider(authenticationProvider())
+				.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+				// passing our jwt authentication filter as validating filter
 				.build();
 	}
 	
@@ -46,5 +54,10 @@ public class SecurityConfig {
 		authenticationProvider.setPasswordEncoder(passwordEncoder());
 		authenticationProvider.setUserDetailsService(userDetailService);
 		return authenticationProvider;
+	}
+	
+	@Bean
+	AuthenticationManager authenticationManager(AuthenticationConfiguration authConfiguration) throws Exception {
+		return authConfiguration.getAuthenticationManager();
 	}
 }

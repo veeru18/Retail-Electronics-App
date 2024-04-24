@@ -5,15 +5,24 @@ import { TfiMobile } from 'react-icons/tfi';
 import { ImHeadphones } from 'react-icons/im';
 import { AiOutlineLaptop } from 'react-icons/ai';
 import axios from 'axios';
+import Input from './../Util/Input';
+import Button from './../Util/Button';
+import Label from './../Util/Label';
+import { useAuth } from '../Auth/AuthProvider';
 
 const Register = ({ role }) => {
-
-  const navigate=useNavigate()
-  let [formData, setFormData] = useState({})
-  const [inputValue, setInputValue] = useState('');
+  const { user, updateUser } = useAuth()
+  const navigate = useNavigate()
+  let [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: role
+  })
   const [emailInputError, setEmailInputError] = useState(false);
   const [passInputError, setPassInputError] = useState(false);
-  const [nameError, setNameError] = useState(false)
+  const [nameInputError, setNameInputError] = useState(false)
+  const [buttonChange, setButtonChange] = useState(false)
 
   const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$/;
   // regex to match atleast one uppercase, one special character, one number and must be 8 characters or more
@@ -21,39 +30,56 @@ const Register = ({ role }) => {
   const nameRegex = /^[a-zA-Z0-9]+/;
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    let {email}=formData
-    let {data}= await axios.post(`http://localhost:8080/api/re-v1/register`,formData);
-    console.log(data,email)
-    navigate("/verify-otp", { state: { data: email } });
+    alert("submitted")
+    let { email } = formData
+    try {
+      let { data } = await axios.post(`http://localhost:8080/api/re-v1/register`, formData,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+      setButtonChange(true)
+      console.log(data, email)
+      updateUser({ ...user, username: email.split("@gmail.com") })
+      navigate("/verify-otp", { state: { data: email } });
+    }
+    catch (error) {
+      console.log(error)
+      setButtonChange(false)
+      alert(error.data?.data?.rootCause)
+    }
   };
-  const handleInputChange = ({ target: { name, value } }) => {
+  const handleInputChange = (name, value) => {
     //event object destructured here
-    setInputValue(value);
-    console.log(formData)
+    if (name === 'name') {
+      setFormData({ ...formData, name: value });
+      if (!nameRegex.test(value)) setNameInputError(true)
+      else {
+        setNameInputError(false);
 
-    if (name === 'name' && !nameRegex.test(value)) {
-      setNameError(true);
-    } else {
-      setNameError(false);
-      setFormData({ ...formData, [name]: value })
+      }
     }
-    if (name === 'email' && !emailRegex.test(value)) {
-      setEmailInputError(true);
-    } else {
-      setEmailInputError(false);
-      setFormData({ ...formData, [name]: value })
+    else if (name === 'email') {
+      setFormData({ ...formData, email: value });
+      if (!emailRegex.test(value)) setEmailInputError(true);
+      else {
+        setEmailInputError(false);
+
+      }
     }
-    if (name === 'password' && !passwordRegex.test(value)) {
-      setPassInputError(true);
-    } else {
-      setPassInputError(false);
-      setFormData({ ...formData, [name]: value })
+    else if (name === 'password') {
+      setFormData({ ...formData, password: value });
+      if (!passwordRegex.test(value)) setPassInputError(true);
+      else {
+        setPassInputError(false);
+
+      }
     }
   };
 
   useEffect(() => {
-    setFormData({ ...formData, ['role']: role });
+
   }, []);
 
   return (
@@ -63,7 +89,7 @@ const Register = ({ role }) => {
           id="loginsec1"
           className="w-[400px] h-[400px] flex flex-col justify-evenly rounded-l-md  items-center bg-blue-700 "
         >
-          <div className='italic -ml-16 mb-20 text-3xl font-bold'>Register</div>
+          <div className='italic text-3xl font-bold'>Register as {role.toLowerCase()}</div>
           <div className='flex'>
             <img className='rounded ' src={logo} alt="" height="100px" width="100px" />
             <AiOutlineLaptop className='mt-auto h-8 w-8' />
@@ -75,78 +101,60 @@ const Register = ({ role }) => {
           id="loginsec2"
           className="w-[400px] bg-gray-100 rounded-r-md flex justify-around items-center h-[400px] "
         >
-          <form onSubmit={handleSubmit}
+          <div
             id="logsubsec"
             className=" h-[300px] w-[300px] flex flex-col justify-around "
           >
             <div id="textbox" className='py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7'>
               <div className='relative'>
-                <input id='name'
-                  name='name' key={'name'}
+                <Input id={'name'}
+                  name={'name'}
                   onChange={handleInputChange}
-                  type="text"
-                  placeholder="Enter the Name"
-                  className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
+                  type={"text"}
+                  value={formData?.name}
+                  placeholder={"Enter the Name"}
                 />
-                <label for="name" class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440
-                           peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Username</label>
-                {nameError && <p className="text-red-500 text-sm mt-1">Please enter alphanumeric name.</p>}
+                <Label htmlFor={"name"}
+                  label={'Username'}
+                />
+                {nameInputError && <p className="text-red-500 text-sm mt-1">Please enter alphanumeric name.</p>}
               </div>
 
               <div className='relative'>
-                <input id='email'
-                  name='email' key={'email'}
+                <Input id={'email'}
+                  name={'email'}
                   onChange={handleInputChange}
-                  type="text"
-                  placeholder="Enter the Email"
-                  className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
+                  type={"text"}
+                  value={formData?.email}
+                  placeholder={"Enter the Email"}
                 />
-                <label for="email" class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440
-                           peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Email Address</label>
+                <Label htmlFor={"email"}
+                  label={'Email Address'}
+                />
                 {emailInputError && <p className="text-red-500 text-sm mt-1">Please enter a valid Gmail ID.</p>}
               </div>
               <div className='relative'>
-                <input id='password'
-                  name='password' key={'password'}
+                <Input id={'password'}
+                  name={'password'}
                   onChange={handleInputChange}
-                  type="password"
-                  placeholder="Enter the Password"
-                  className="peer placeholder-transparent h-10 w-full border-b-2 border-gray-300 text-gray-900 focus:outline-none focus:borer-rose-600"
+                  type={"password"}
+                  value={formData?.password}
+                  placeholder={"Enter the Password"}
                 />
-                <label for="password" class="absolute left-0 -top-3.5 text-gray-600 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-440
-                           peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-600 peer-focus:text-sm">Password</label>
+                <Label htmlFor={"password"}
+                  label={'Password'}
+                />
                 {passInputError && <p className="text-red-500 text-sm mt-1">Password should have 8+ and atleast one uppercase, one special character, one number</p>}
               </div>
-
-              {/* <span className='mt-auto'>Select Account type:</span>
-              <div className='flex justify-evenly -ml-20 items-center p-2'>
-                <span className='seller-radio'>
-                  <input
-                    id='seller' type='radio'
-                    value='seller'
-                    onChange={handleInputChange}
-                    name='role'
-                  />
-                  <label className='ml-2' htmlFor='seller' >Seller</label>
-                </span>
-                <span className='customer-radio'>
-                  <input
-                    id='customer' type='radio'
-                    value='customer'
-                    onChange={handleInputChange}
-                    name='role'
-                  />
-                  <label className='ml-2' htmlFor='customer' >Customer</label>
-                </span>
-              </div> */}
-
             </div>
             <div className="flex justify-around items-center">
-              <button type='submit' className="p-2 bg-blue-600 hover:bg-blue-800 font-mono rounded-2xl w-[120px] text-white text-xl">
-                Register
-              </button>
+              <Button
+                text={'Register'}
+                onClick={handleSubmit}
+                disabled={buttonChange}
+              />
             </div>
-          </form>
+          </div>
         </div>
       </div >
     </div >

@@ -13,31 +13,25 @@ import Home from './../Public/Home';
 import Orders from './../Private/Customer/Orders';
 import App from './../App';
 import Explore from './../Private/Customer/Explore';
+import { useAuth } from './../Auth/AuthProvider';
 
 const AllRoutes = () => {
 
-    // null or undefined works too
-    // when user directly access URLs we create dummy userAuth object whose role is  authenticated value is false
-    const userAuth = {
-        userId: 123,
-        email: 'veeru17@gmail.com',
-        username: "Veeru",
-        accessExpiration: 3600,
-        refreshExpiration: 1296000,
-        authenticated: false,
-        role: "CUSTOMER"
-    }
+    // when user directly access URLs we create dummy userAuth object whose role is CUST authenticated value is false
+    // dummy user by default will be available everywhere
+    const {user}=useAuth()
 
     let routes = []
 
-    if (userAuth != null || userAuth != undefined) {
-        const { authenicated, role } = userAuth;
+    if (user != null || user != undefined) {
+        const { authenicated, role } = user;
         if (authenicated) {
             (role == 'SELLER') ?
                 routes.push(
                     <Route key={'seller-dashboard'} path='/seller-dashboard' element={<SellerDashboard />} />,
                     <Route key={'add-product'} path='/add-product' element={<AddProduct />} />,
-                ) : (role == 'CUSTOMER') && routes.push(
+                ) 
+                : (role == 'CUSTOMER') && routes.push(
                     <Route key={'orders'} path='/orders' element={<Orders />} />,
                     <Route key={'cart'} path='/cart' element={<Cart />} />,
                     <Route key={'wishlist'} path='/wishlist' element={<WishList />} />,
@@ -74,7 +68,7 @@ const AllRoutes = () => {
 
     return (
         <Routes>
-            <Route path='/' element={<App userAuth={userAuth} />}>
+            <Route path='/' element={<App user={user} />}>
                 {routes}
             </Route>
         </Routes>

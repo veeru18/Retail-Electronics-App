@@ -19,9 +19,9 @@ import com.ecommerce.retail_electronicsapp.exceptions.EmailAlreadyExistsExceptio
 import com.ecommerce.retail_electronicsapp.exceptions.EmailInvalidException;
 import com.ecommerce.retail_electronicsapp.exceptions.IllegalAccessRequestExcpetion;
 import com.ecommerce.retail_electronicsapp.exceptions.OTPExpiredException;
+import com.ecommerce.retail_electronicsapp.exceptions.OTPInvalidException;
 import com.ecommerce.retail_electronicsapp.exceptions.RegistrationSessionExpiredException;
 import com.ecommerce.retail_electronicsapp.exceptions.UsernameAlreadyExistsException;
-import com.ecommerce.retail_electronicsapp.service.impl.OTPInvalidException;
 
 import lombok.AllArgsConstructor;
 

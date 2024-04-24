@@ -17,8 +17,10 @@ public class RetailUserDetailService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		return userRepo.findByEmail(username)
-				.map(user->new RetailUserDetails(user))
+		String usernames=username.split("@gmail.com")[0];
+		return userRepo.findByUsername(usernames)
+				.map(RetailUserDetails::new)
+//				.map(user->new RetailUserDetails(user.getUsername(),user.getPassword(),user.getUserRole()) )
 				.orElseThrow(()->new UsernameNotFoundException("Please enter a valid Email ID that you've registered with"));
 	}
 

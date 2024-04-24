@@ -7,14 +7,22 @@ import { IoCartOutline } from 'react-icons/io5';
 import { LuBoxes } from 'react-icons/lu';
 import { FaHeart, FaRegUserCircle } from 'react-icons/fa';
 import { HiMiniBars3BottomLeft } from 'react-icons/hi2';
+import { useAuth } from '../Auth/AuthProvider';
+import { RxExit } from 'react-icons/rx';
 
-const Header = (props) => {
+const Header = ({users}) => {
 
+  let name=null
+  if(users) {
+    const {displayName}=users;
+    console.log(displayName,users)
+    name=displayName
+  }
   let [isOpen, setIsOpen] = useState(false);
   let [isMoreOpen, setIsMoreOpen] = useState(false);
-  const links = ["Contact Us","Terms & Conditions"]
+  const links = ["Contact Us", "Terms & Conditions"]
 
-  const user = props?.userAuth;
+  const { user, updateUser } = useAuth()
 
   const { username, authenticated, role } = user;
 
@@ -25,7 +33,7 @@ const Header = (props) => {
         <div className='flex h-6 justify-around items-center w-4/6'>
           {/* logo */}
           <Link to={'/'} className='ml-6 w-40'>
-            <img title='H' src={logo} alt='logo' className='rounded w-full' />
+            <img title='Homepage' src={logo} alt='logo' className='rounded w-full' />
           </Link>
 
           {/* search bar */}
@@ -41,38 +49,47 @@ const Header = (props) => {
 
         {/* Nav Links */}
         <div className='text-slate-600 flex border-black justify-evenly items-center w-2/6'>
-          <Link className='flex hover:bg-blue-500 p-3 rounded items-center' to={authenticated ? "/account" : "/login"}
+          <div className='flex hover:bg-blue-500 p-3 rounded items-center'
             onMouseEnter={() => { setIsOpen((prev) => !prev) }} onMouseLeave={() => { setIsOpen((prev) => !prev) }}>
-            <FaRegUserCircle title='Login' className='mr-2' />
+            <HeaderLink icon={<FaRegUserCircle title='User' className='-mr-2' />} path={authenticated ? "/account" : "/login"} />
             {authenticated ?
-              username
-              : <div className=''>Login
+              <div>
+                <Link to={'/account'} className='-ml-1'>{name}</Link>
                 {isOpen && (
-                  <div className='absolute p-2 mt-3 -ml-12'>
+                  <Link to={'/'} className='absolute p-2 mt-7 -ml-[88px]' >
+                    <p className='flex p-2'>
+                      <RxExit className='mt-1 mr-2' title='Logout' />Logout
+                    </p>
+                  </Link>
+                )}
+              </div>
+              : <Link to={'login'} className='-ml-1'>Login
+                {isOpen && (
+                  <div className='absolute p-2 mt-3 -ml-16'>
                     <HeaderLink path={'/register'} linkName={'New Customer? SignUp'} />
                   </div>
                 )
                 }
-              </div>
+              </Link>
             }
-          </Link>
+          </div>
 
           {
             (user != null && user != undefined) ?
               (authenticated && role === "CUSTOMER")
                 ? <div className='flex'>
-                  <HeaderLink icon={<FaHeart />} linkName={"Wishlist"} path={'/wishlist'} />
-                  <HeaderLink icon={<IoCartOutline />} linkName={"Cart"} path={'/cart'} />
+                  <HeaderLink icon={<FaHeart title='Wishlist' />} linkName={"Wishlist"} path={'/wishlist'} />
+                  <HeaderLink icon={<IoCartOutline title='Cart' />} linkName={"Cart"} path={'/cart'} />
                 </div>
                 : (authenticated && role === "SELLER")
-                  ? <HeaderLink icon={<LuBoxes />} linkName={"Orders"} path={'/orders'} />
+                  ? <HeaderLink icon={<LuBoxes title='Orders' />} linkName={"Orders"} path={'/orders'} />
                   : (!authenticated) &&
                   <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register-seller'} />
               : <HeaderLink linkName={"Become a Seller"} icon={<MdOutlineStore />} path={'/register-seller'} />
           }
           <div className='flex hover:bg-blue-500 p-3 rounded items-center'
             onMouseEnter={() => { setIsMoreOpen((prev) => !prev) }} onMouseLeave={() => { setIsMoreOpen((prev) => !prev) }}>
-            <HiMiniBars3BottomLeft />
+            <HiMiniBars3BottomLeft title='More'/>
             <div className='absolute p-2 mt-28 -ml-7'>
               {isMoreOpen && links.map((item) => (
                 <div>

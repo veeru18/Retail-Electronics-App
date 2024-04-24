@@ -14,6 +14,10 @@ import lombok.AllArgsConstructor;
 public class RetailUserDetails implements UserDetails{
 
 	private User user;
+	//can also have seperately
+//	private String username;
+//	private String password;
+//	private UserRole role;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -27,7 +31,7 @@ public class RetailUserDetails implements UserDetails{
 
 	@Override
 	public String getUsername() {
-		return user.getEmail();
+		return user.getUsername();
 	}
 
 	@Override
