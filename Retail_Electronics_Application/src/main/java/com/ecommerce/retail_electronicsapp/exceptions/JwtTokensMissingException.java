@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter @SuppressWarnings("serial")
-public class JwtAccessTokenMissingException extends RuntimeException {
+public class JwtTokensMissingException extends RuntimeException {
 
 	private String message;
 }

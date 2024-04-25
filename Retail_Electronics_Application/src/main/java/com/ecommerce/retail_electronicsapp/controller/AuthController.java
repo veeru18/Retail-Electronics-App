@@ -1,6 +1,8 @@
 package com.ecommerce.retail_electronicsapp.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,30 +28,42 @@ import lombok.AllArgsConstructor;
 public class AuthController {
 
 	private AuthService authService;
-//	private JwtService jwtService;
-	
+	//	private JwtService jwtService;
+
 	@PostMapping("/register")
 	public ResponseEntity<SimpleResponseStructure> userRegistration(@RequestBody @Valid UserRequest userRequest) throws MessagingException {
 		return authService.userRegistration(userRequest);
 	}
-	
+
 	@PostMapping("/verify-email")
 	public ResponseEntity<ResponseStructure<UserResponse>> verifyOTP(@RequestBody OTPRequest otpRequest){
 		return authService.verifyOTP(otpRequest);
 	}
-	
-//	@GetMapping("/access-token")
-//	private String getAccessToken(@RequestParam String username, @RequestParam String role) {
-//		return jwtService.generateAccessToken(username,role);
-//	}
-//	
-//	@GetMapping("/refresh-token")
-//	private String getRefreshToken(@RequestParam String username, @RequestParam String role) {
-//		return jwtService.generateRefreshToken(username,role);
-//	}
-	
+
+	//	@GetMapping("/access-token")
+	//	private String getAccessToken(@RequestParam String username, @RequestParam String role) {
+	//		return jwtService.generateAccessToken(username,role);
+	//	}
+	//	
+	//	@GetMapping("/refresh-token")
+	//	private String getRefreshToken(@RequestParam String username, @RequestParam String role) {
+	//		return jwtService.generateRefreshToken(username,role);
+	//	}
+
 	@PostMapping("/login")
 	public ResponseEntity<ResponseStructure<AuthResponse>> userRegistration(@RequestBody @Valid AuthRequest authRequest) {
 		return authService.userLogin(authRequest);
+	}
+
+	@PostMapping("/logout")
+	public ResponseEntity<SimpleResponseStructure> userLogout(@CookieValue(value="at",required=false) String accessToken,
+																@CookieValue(value="rt",required=false) String refreshToken) {
+		return authService.userLogout(accessToken,refreshToken);
+	}
+	
+	@GetMapping("/refresh-access")
+	public ResponseEntity<ResponseStructure<AuthResponse>> refreshAccessTokens( @CookieValue(value="at",required=false) String accessToken,
+																			@CookieValue(value="rt",required=false) String refreshToken) {
+		return authService.refreshAccessTokens(accessToken,refreshToken);
 	}
 }

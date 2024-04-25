@@ -55,6 +55,10 @@ public class JwtService {
 		return parseJwtToken(token).getSubject();
 	}
 	
+	public Date getIssuedAt(String token) {
+		return parseJwtToken(token).getIssuedAt();
+	}
+	
 	private Claims parseJwtToken(String jwtToken) {
 		return Jwts.parserBuilder()
 				.setSigningKey(getSignatureKeys())

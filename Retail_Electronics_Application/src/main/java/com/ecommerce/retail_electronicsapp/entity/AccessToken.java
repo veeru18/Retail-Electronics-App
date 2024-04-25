@@ -1,5 +1,7 @@
 package com.ecommerce.retail_electronicsapp.entity;
 
+import java.util.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +25,7 @@ public class AccessToken {
 	@Column(length = 500)
 	private String token;
 	private Boolean isBlocked;
-	private long expiration;
+	private Date expiration;
 	@ManyToOne
 	private User user;
 }

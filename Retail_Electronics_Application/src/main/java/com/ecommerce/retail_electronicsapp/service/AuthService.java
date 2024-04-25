@@ -20,4 +20,8 @@ public interface AuthService {
 
 	ResponseEntity<ResponseStructure<AuthResponse>> userLogin(AuthRequest authRequest);
 
+	ResponseEntity<SimpleResponseStructure> userLogout(String accessToken, String refreshToken);
+
+	ResponseEntity<ResponseStructure<AuthResponse>> refreshAccessTokens(String accessToken, String refreshToken);
+
 }

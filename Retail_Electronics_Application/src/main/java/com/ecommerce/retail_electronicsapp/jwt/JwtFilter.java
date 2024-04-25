@@ -98,7 +98,7 @@ public class JwtFilter extends OncePerRequestFilter {
 	            return;
 	        }
 		}
-//		else if tokens are empty allow to pass through other filters since user might be trying to login thus allow
+//		else even if one of the tokens are empty allow to pass through other filters since user might be trying to login thus allow
 
 		filterChain.doFilter(request, response);
 	}
