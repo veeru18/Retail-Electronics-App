@@ -27,6 +27,7 @@ import com.ecommerce.retail_electronicsapp.enums.UserRole;
 import com.ecommerce.retail_electronicsapp.exceptions.AccountAceessRequestDeniedException;
 import com.ecommerce.retail_electronicsapp.exceptions.EmailAlreadyExistsException;
 import com.ecommerce.retail_electronicsapp.exceptions.IllegalAccessRequestExcpetion;
+import com.ecommerce.retail_electronicsapp.exceptions.InvalidLoginRequestException;
 import com.ecommerce.retail_electronicsapp.exceptions.JwtTokensMissingException;
 import com.ecommerce.retail_electronicsapp.exceptions.OTPExpiredException;
 import com.ecommerce.retail_electronicsapp.exceptions.OTPInvalidException;
@@ -178,7 +179,10 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	public ResponseEntity<ResponseStructure<AuthResponse>> userLogin(AuthRequest authRequest) {
+	public ResponseEntity<ResponseStructure<AuthResponse>> userLogin(AuthRequest authRequest, String accessToken, String refreshToken) {
+//		if((accessToken==null && refreshToken==null) || (accessToken!=null && refreshToken==null)) {}
+			//continue
+		if(accessToken==null && refreshToken!=null) throw new InvalidLoginRequestException("user already logged in, send a refresh request");
 		String username=authRequest.getUsername().split("@gmail.com")[0];
 
 		Authentication authentication=authManager.authenticate(new UsernamePasswordAuthenticationToken(username, authRequest.getPassword()));

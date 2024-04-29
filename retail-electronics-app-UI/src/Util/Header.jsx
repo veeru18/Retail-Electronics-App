@@ -35,7 +35,7 @@ const Header = () => {
     if (confirmed) {
       try {
         // Perform logout logic
-        await axios.post("http://localhost:8080/api/re-v1/logout", null, {
+        let {data:data}=await axios.post("http://localhost:8080/api/re-v1/logout", null, {
           withCredentials: true
         });
         // Update user state
@@ -113,35 +113,6 @@ const Header = () => {
                       }
                       linkName={"Logout"}
                       onClick={handleLogout}
-                      // onClick={async () => {
-                      //   const result = await confirmLogout();
-                      //   if (result === true) {
-                      //     let {
-                      //       data: { data },
-                      //     } = await axios.post(
-                      //       "http://localhost:8080/api/re-v1/logout",
-                      //       null,
-                      //       {
-                      //         headers: {},
-                      //         withCredentials: true,
-                      //       }
-                      //     );
-                      //     setUser({
-                      //       ...user,
-                      //       username: "",
-                      //       displayName: "",
-                      //       authenticated: false,
-                      //       userRole: "CUSTOMER",
-                      //       accessExpiration: 0,
-                      //       refreshExpiration: 0,
-                      //     });
-                      //     logoutResponse = data;
-                      //     console.log(logoutResponse);
-                      //     navigate("/", { state: { logoutResponse } });
-                      //   } else {
-                      //     return false;
-                      //   }
-                      // }}
                     />
                   </div>
                 )}

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import VerifyOTP from '../Public/VerifyOTP'
 import Cart from './../Private/Customer/Cart';
 import WishList from './../Private/Customer/WishList';
@@ -17,63 +17,73 @@ import { useAuth } from './../Auth/AuthProvider';
 
 const AllRoutes = () => {
 
+    const [routes, setRoutes] = useState([]);
+    const [isAuthentic, setIsAuthentic] = useState(false)
+    const [role, setRole] = useState("");
     // when user directly access URLs we create dummy userAuth context object whose role is CUST authenticated value is false
     // dummy user by default will be available everywhere
-    const {user}=useAuth()
+    const { user } = useAuth()
 
     useEffect(() => {
-        console.log("From All Routes: ", user)
-    }, [user])
+        routes.forEach(r => console.log("effect: ", r.props.path))
+    }, [routes]);
 
-    let routes = []
 
-    if (user != null || user != undefined) {
-        const { authenicated, userRole, username, displayName} = user;
-        if (authenicated) {
-            (userRole == 'SELLER') ?
-                routes.push(
-                    <Route key={'seller-dashboard'} path='/seller-dashboard' element={<SellerDashboard />} />,
-                    <Route key={'add-product'} path='/add-product' element={<AddProduct />} />,
-                ) 
-                : (userRole == 'CUSTOMER') && routes.push(
-                    <Route key={'orders'} path='/orders' element={<Orders />} />,
-                    <Route key={'cart'} path='/cart' element={<Cart />} />,
-                    <Route key={'wishlist'} path='/wishlist' element={<WishList />} />,
-                    <Route key={'explore'} path='/explore' element={<Explore />} />
-                )
-            //common routes only if authenticated
-            routes.push(
-                <Route key={'add-address'} path='/add-address' element={<AddAddress />} />,
-                <Route key={'account'} path='/account' element={<EditProfile />} />,
-                <Route key={'home'} path='/' element={<Home />} />
-            )
+    useEffect(() => {
+
+        if (isAuthentic) {
+            console.log("is Authentic")
+            if (role === "SELLER") {
+                setRoutes([...routes,
+                <Route key={"seller-dashboard"} path="/seller-dashboard" element={<SellerDashboard />} />,
+                <Route key={"add-product"} path="/add-product" element={<AddProduct />} />,
+                <Route key={"add-address"} path="/add-address" element={<AddAddress />} />,
+                <Route key={"account"} path="/account" element={<EditProfile />} />,
+                <Route key={"home"} path="/" element={<Home />} />
+                ])
+            }
+
+            if (role === "CUSTOMER") {
+                routes.forEach(r => console.log("auth: ", r.props.path))
+                setRoutes([...routes,
+                <Route key={"orders"} path="/orders" element={<Orders />} />,
+                <Route key={"cart"} path="/cart" element={<Cart />} />,
+                <Route key={"wishlist"} path="/wishlist" element={<WishList />} />,
+                <Route key={"explore"} path="/explore" element={<Explore />} />,
+                <Route key={"add-address"} path="/add-address" element={<AddAddress />} />,
+                <Route key={"account"} path="/account" element={<EditProfile />} />,
+                <Route key={"home"} path="/" element={<Home />} />
+                ]);
+            }
         }
-        else { //if not authenticated he'll stil be dummy user
-            // console.log("Not Authenticated")
-            routes.push(
-                <Route key={'verify-otp'} path='/verify-otp' element={<VerifyOTP />} />,
-                <Route key={'login'} path='/login' element={<Login />} />,
-                <Route key={'register'} path='/register' element={<Register userRole={"CUSTOMER"} />} />,
-                <Route key={'register-seller'} path='/register-seller' element={<Register userRole={"SELLER"} />} />,
-                <Route key={'home'} path='/' element={<Home />} />
-            )
+
+    }, [isAuthentic])
+
+    const { authenticated, userRole } = user;
+
+    const validateAndRenderRoutes = () => {
+        if (authenticated) {
+            console.log(userRole)
+            setRoutes([]);
+            setRole(userRole)
+            setIsAuthentic(true)
+        } else {
+            //if not authenticated he'll stil be dummy user
+            setRoutes([
+                <Route key={"verify-otp"} path="/verify-otp" element={<VerifyOTP />} />,
+                <Route key={"login"} path="/login" element={<Login />} />,
+                <Route key={"register"} path="/register" element={<Register role={"CUSTOMER"} />} />,
+                <Route key={"register-seller"} path="/register-seller" element={<Register role={"SELLER"} />} />,
+                <Route key={"home"} path="/" element={<Home />} />
+            ]);
         }
     }
-    else {
-        //pushing all public routes here if error
-        routes.push(
-            <Route key={'verify-otp'} path='/verify-otp' element={<VerifyOTP />} />,
-            <Route key={'login'} path='/login' element={<Login />} />,
-            <Route key={'register'} path='/register' element={<Register userRole={"CUSTOMER"} />} />,
-            <Route key={'register-seller'} path='/register-seller' element={<Register userRole={"SELLER"} />} />,
-            <Route key={'home'} path='/' element={<Home />} />
-        )
-    }
-    // routes.map((route)=>console.log(route.props.path))
+
+    useEffect(() => validateAndRenderRoutes(), [user])
 
     return (
         <Routes>
-            <Route path='/' element={<App user={user} />}>
+            <Route path="/" element={<App user={user} />}>
                 {routes}
             </Route>
         </Routes>
