@@ -10,17 +10,17 @@ import Button from './../Util/Button';
 import Label from './../Util/Label';
 import { useAuth } from '../Auth/AuthProvider';
 
-const Register = () => {
+const Register = ({role}) => {
   const { user, setUser } = useAuth()
   const navigate = useNavigate()
-  const location=useLocation()
+  // const location=useLocation()
   // console.log(location?.pathname)
-  let path=location?.pathname
+  // let path=location?.pathname
   let [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    userRole: path==="/register"?"CUSTOMER":path==="/register-seller"?"SELLER":"CUSTOMER"
+    userRole: role
   })
   const [emailInputError, setEmailInputError] = useState(false);
   const [passInputError, setPassInputError] = useState(false);

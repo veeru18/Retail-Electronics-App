@@ -3,7 +3,6 @@ package com.ecommerce.retail_electronicsapp.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,33 +30,29 @@ public class ContactAddressController {
 	private ContactAddressService contactAddressService;
 	
 	@PostMapping("/address")
-	public ResponseEntity<ResponseStructure<Address>> addAddressToUser(@RequestBody @Valid AddressRequest addressRequest,
-																		@CookieValue(required=false, value = "at") String accessToken){
-		return contactAddressService.addAddressToUser(addressRequest,accessToken);
+	public ResponseEntity<ResponseStructure<Address>> addAddressToUser(@RequestBody @Valid AddressRequest addressRequest){
+		return contactAddressService.addAddressToUser(addressRequest);
 	}
 	@PutMapping("/address/{addressId}")
-	public ResponseEntity<ResponseStructure<Address>> updateAddress(@CookieValue(required=false, value = "at") String accessToken,
-																	@PathVariable int addressId,
+	public ResponseEntity<ResponseStructure<Address>> updateAddress(@PathVariable int addressId,
 																	@RequestBody @Valid AddressRequest addressRequest){
-		return contactAddressService.updateAddress(addressId,addressRequest,accessToken);
+		return contactAddressService.updateAddress(addressId,addressRequest);
 	}
 	
 	@PostMapping("/contacts/{addressId}")
-	public ResponseEntity<ResponseStructure<List<Contact>>> addContactsToAddress(@CookieValue(required=false, value = "at") String accessToken, 
-																			@PathVariable int addressId, 
+	public ResponseEntity<ResponseStructure<List<Contact>>> addContactsToAddress(@PathVariable int addressId, 
 															@RequestBody @Valid @Size(max = 2) List<ContactRequest> contactRequests){
-		return contactAddressService.addContactsToAddress(accessToken,addressId,contactRequests);
+		return contactAddressService.addContactsToAddress(addressId,contactRequests);
 	}
 	
 	@PutMapping("/contacts/{contactId}")
-	public ResponseEntity<ResponseStructure<Contact>> updateContact(@CookieValue(required=false, value = "at") String accessToken, 
-																	@PathVariable int contactId,
+	public ResponseEntity<ResponseStructure<Contact>> updateContact(@PathVariable int contactId,
 																	@RequestBody ContactRequest contactRequest){
-		return contactAddressService.updateContact(accessToken,contactId, contactRequest);
+		return contactAddressService.updateContact(contactId, contactRequest);
 	}
 	
 	@GetMapping("/address")
-	public ResponseEntity<ResponseStructure<List<Address>>> fetchAddress(@CookieValue(required=false, value = "at") String accessToken){
-		return contactAddressService.fetchAddress(accessToken);
+	public ResponseEntity<ResponseStructure<List<Address>>> fetchAddress(){
+		return contactAddressService.fetchAddresses();
 	}
 }

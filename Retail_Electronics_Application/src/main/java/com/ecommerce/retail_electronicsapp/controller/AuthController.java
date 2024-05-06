@@ -40,18 +40,8 @@ public class AuthController {
 		return authService.verifyOTP(otpRequest);
 	}
 
-	//	@GetMapping("/access-token")
-	//	private String getAccessToken(@RequestParam String username, @RequestParam String role) {
-	//		return jwtService.generateAccessToken(username,role);
-	//	}
-	//	
-	//	@GetMapping("/refresh-token")
-	//	private String getRefreshToken(@RequestParam String username, @RequestParam String role) {
-	//		return jwtService.generateRefreshToken(username,role);
-	//	}
-
 	@PostMapping("/login")
-	public ResponseEntity<ResponseStructure<AuthResponse>> userRegistration(@RequestBody @Valid AuthRequest authRequest,
+	public ResponseEntity<ResponseStructure<AuthResponse>> userLogin(@RequestBody @Valid AuthRequest authRequest,
 																@CookieValue(value="at",required=false) String accessToken,
 																@CookieValue(value="rt",required=false) String refreshToken) {
 		return authService.userLogin(authRequest,accessToken,refreshToken);

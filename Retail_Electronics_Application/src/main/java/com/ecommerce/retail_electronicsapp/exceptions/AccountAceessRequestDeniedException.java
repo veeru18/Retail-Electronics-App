@@ -1,11 +1,13 @@
 package com.ecommerce.retail_electronicsapp.exceptions;
 
-import lombok.AllArgsConstructor;
+import io.jsonwebtoken.JwtException;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter @SuppressWarnings("serial")
-public class AccountAceessRequestDeniedException extends RuntimeException {
+public class AccountAceessRequestDeniedException extends JwtException {
 
-	private String message;
+	public AccountAceessRequestDeniedException(String message) {
+		super(message);
+	}
+
 }

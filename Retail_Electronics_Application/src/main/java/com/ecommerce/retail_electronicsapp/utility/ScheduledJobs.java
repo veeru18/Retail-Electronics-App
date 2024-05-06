@@ -17,7 +17,7 @@ public class ScheduledJobs {
 	private AccessTokenRepository accessTokenRepository;
 	private RefreshTokenRepository refreshTokenRepository;
 	
-	@Scheduled(fixedDelay = 60000l)
+	@Scheduled(fixedDelay = 600000l)
 	public void deleteTokensIfExpired() {
 		
 		accessTokenRepository.deleteAll(accessTokenRepository.findAllByExpirationLessThan(new Date()));

@@ -8,10 +8,10 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.ecommerce.retail_electronicsapp.exceptions.AccountAceessRequestDeniedException;
@@ -29,18 +29,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 
-@Component
 @AllArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
 	private AccessTokenRepository accessRepo;
 	private RefreshTokenRepository refreshRepo;
 	private JwtService jwtService;
-
+	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
+		System.out.println("inside jwt filter");
 		Cookie[] cookies = request.getCookies();
 		String accessToken=null;
 		String refreshToken=null;
@@ -50,33 +50,42 @@ public class JwtFilter extends OncePerRequestFilter {
 //							.get(0);
 
 		if(cookies!=null) {
+			System.out.println("cookies are present");
 			for(Cookie cookie:cookies) {
-				accessToken= cookie.getAttribute("at");
-				refreshToken= cookie.getAttribute("rt");
+				if(cookie.getName().equals("at"))
+					accessToken=cookie.getValue();
+				else if(cookie.getName().equals("rt"))
+					refreshToken=cookie.getValue();
 			}
 		}
 
 		String userRole=null,username=null;
 		if(accessToken!=null && refreshToken!=null) {
+			System.out.println("both tokens are present");
 			try {
 	            if(accessRepo.existsByTokenAndIsBlockedTrue(accessToken)
 	                    || refreshRepo.existsByTokenAndIsBlockedTrue(refreshToken)) 
-	                throw new AccountAceessRequestDeniedException("Access for this account is blocked");
+	                throw new AccountAceessRequestDeniedException("Access for this account from these tokens is blocked");
 
 	            else {
 	                username=jwtService.getUsername(accessToken);
+	                System.out.println(username);
 	                userRole=jwtService.getUserRole(accessToken);
-	                if(username!=null && userRole!=null && SecurityContextHolder.getContext().getAuthentication()==null) {
-	                    UsernamePasswordAuthenticationToken token=
-	                            new UsernamePasswordAuthenticationToken(username
-	                                    , null
-	                                    , Collections.singleton(new SimpleGrantedAuthority(userRole)));
-	                    token.setDetails(new WebAuthenticationDetails(request));
-	                    SecurityContextHolder.getContext().setAuthentication(token);
-	                    System.out.println(token.getName());
+	                System.out.println(userRole);
+	                if (username != null && userRole != null) {
+	                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	                    if (authentication == null || !authentication.isAuthenticated()) {
+	                        UsernamePasswordAuthenticationToken token =
+	                                new UsernamePasswordAuthenticationToken(username, null, Collections.singleton(new SimpleGrantedAuthority(userRole)));
+	                        token.setDetails(new WebAuthenticationDetails(request));
+	                        SecurityContextHolder.getContext().setAuthentication(token);
+	                        System.out.println(token.getName());
+	                        System.out.println("authentication object was null");
+	                    }
 	                }
 	            }
-	        } catch (ExpiredJwtException e) {
+	        } 
+			catch (ExpiredJwtException e) {
 	            // Handling JWTExpired exception
 	        	response.setStatus(HttpStatus.UNAUTHORIZED.value());
 	            Map<String, String> errors = new HashMap<>();

@@ -26,6 +26,7 @@ public class AddressRequest {
 	@Pattern(regexp = "^[a-zA-Z]+$",message = "should contain only alphabet")
 	private String state;
 //	@Pattern(regexp="^[0-9]+$",message="please enter only numbers")
+	@NotNull(message = "pincode should not be empty")
 	private int pincode;
 	
 }

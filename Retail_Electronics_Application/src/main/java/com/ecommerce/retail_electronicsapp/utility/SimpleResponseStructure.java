@@ -8,10 +8,10 @@ import lombok.Getter;
 @Component
 public class SimpleResponseStructure {
 
-	private int status;
+	private int statusCode;
 	private String message;
-	public SimpleResponseStructure setStatus(int status) {
-		this.status = status;
+	public SimpleResponseStructure setStatus(int statusCode) {
+		this.statusCode = statusCode;
 		return this;
 	}
 	public SimpleResponseStructure setMessage(String message) {

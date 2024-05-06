@@ -47,6 +47,7 @@ const Header = () => {
           accessExpiration: 0,
           refreshExpiration: 0
         });
+        localStorage.removeItem("user")
         navigate("/", { state: { logoutResponse: data } });
       } catch (error) {
         console.error("Logout failed:", error);
@@ -106,7 +107,7 @@ const Header = () => {
               <div>
                 {/* <Link to={'/account'} className='-ml-1'>{username}</Link> */}
                 {isOpen && (
-                  <div className="absolute bg-white rounded p-1 mt-7 -ml-24">
+                  <div className="absolute bg-white rounded px-4 py-1 mt-7 -ml-28">
                     <HeaderLink
                       icon={
                         <RxExit size={"18px"} className="" title="Logout" />
@@ -184,7 +185,7 @@ const Header = () => {
             }}
           >
             <HiMiniBars3BottomLeft title="More" />
-            <div className="absolute p-2 mt-28 -ml-7">
+            <div key={'links'} className="absolute p-2 mt-28 -ml-7">
               {isMoreOpen &&
                 links.map((item) => (
                   <div>

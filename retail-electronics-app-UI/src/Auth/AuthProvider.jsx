@@ -1,28 +1,45 @@
-import React, { useState, useEffect, useContext, createContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import useRefreshAuth from "./useRefreshAuth";
 
-//context holding the auth user details
-export const authContext=createContext({})
+const AuthContext = createContext({});
 
-//component then returns the AuthContext by enclosing its child components within the context
-const AuthProvider = ({children}) => {
-    const [user, setUser] = useState({
-        userId:"",
-        userRole:"CUSTOMER",
-        username:"",
-        authenticated:false,
-        accessExpiration:0,
-        refreshExpiration:0
-    });
+export const AuthProvider = ({ children }) => {
+  const { auth } = useRefreshAuth();
 
-    useEffect(() => console.log(user), [user])
+  const [user, setUser] = useState({
+    userId: "",
+    username: "",
+    roles: ["CUSTOMER"],
+    accessExpiration: null,
+    refreshExpiration: null,
+    authenticated: false,
+  });
+  // const [user, setUser] = useState(() => {
+  //   const storedUser = localStorage.getItem("user");
+  //   return storedUser? 
+  //     JSON.parse(storedUser)
+  //      : {
+  //         userId: "",
+  //         userRole: "CUSTOMER",
+  //         username: "",
+  //         authenticated: false,
+  //         accessExpiration: 0,
+  //         refreshExpiration: 0,
+  //       };
+  // });
 
-    return (
-        <authContext.Provider value={{user,setUser}}>
-            {children}
-        </authContext.Provider>
-    );
+  useEffect(() => {
+    if (auth?.userId) setAuth(auth);
+  }, [auth]);
+
+  return (
+    <AuthContext.Provider value={{ user, setUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;
 
-export const useAuth=()=>useContext(authContext)
+// Custom Hook
+export const useAuth = () => useContext(AuthContext);

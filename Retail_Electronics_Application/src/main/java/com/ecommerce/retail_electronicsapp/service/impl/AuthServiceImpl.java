@@ -14,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -186,7 +187,8 @@ public class AuthServiceImpl implements AuthService {
 		String username=authRequest.getUsername().split("@gmail.com")[0];
 
 		Authentication authentication=authManager.authenticate(new UsernamePasswordAuthenticationToken(username, authRequest.getPassword()));
-
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		
 		if(!authentication.isAuthenticated()) throw new BadCredentialsException("exception cause of bad credentials"); 
 		System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
 		System.out.println(username);
@@ -292,26 +294,31 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public ResponseEntity<ResponseStructure<AuthResponse>> refreshAccessTokens(String accessToken,
 			String refreshToken) {
-		HttpHeaders headers=new HttpHeaders();
-		AccessToken at=null; RefreshToken rt=null;
-		if(accessRepository.findByToken(accessToken).isPresent()) {
-			at = accessRepository.findByToken(accessToken).get();
-			at.setIsBlocked(true);
-			accessRepository.save(at);
-		}
-		if(!refreshRepository.findByToken(refreshToken).isPresent()) throw new AccountAceessRequestDeniedException("account has been logged out, please login again");
-		rt = refreshRepository.findByToken(refreshToken).get();
+		accessRepository.findByToken(accessToken).ifPresent(token->{
+			token.setIsBlocked(true);
+			System.out.println("access token blocked");
+			accessRepository.save(token);
+		});
+		if(!refreshRepository.existsByTokenAndIsBlockedTrue(refreshToken)) throw new AccountAceessRequestDeniedException("account has been logged out, please login again");
 		//validating the token issued date with current date
-		if(jwtService.getIssuedAt(refreshToken).before(new Date())) {
-			generateRefreshToken(rt.getUser(), headers);
-		}
-		else headers.add(HttpHeaders.SET_COOKIE, refreshToken);
-		generateAccessToken(rt.getUser(), headers);
+		HttpHeaders headers=new HttpHeaders();
+		return userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).map(user ->{
+			if(jwtService.getIssuedAt(refreshToken).before(new Date())) {
+				System.out.println("genrating new refresh token");
+				generateRefreshToken(user, headers);
+			}
+			else {
+				System.out.println("using the same refresh token");
+				headers.add(HttpHeaders.SET_COOKIE, refreshToken);
+			}
+			
+			generateAccessToken(user, headers);
+			
+			return ResponseEntity.ok().headers(headers).body(authResponseStructure.setMessage("Tokens are refreshed")
+																	.setStatusCode(HttpStatus.OK.value())
+																	.setData(mapToAuthResponse(user, refreshExpiration, accessExpiration)));
+		}).orElseThrow(()-> new UsernameNotFoundException("user hasn't logged in, please sign in again"));
 		
-		return ResponseEntity.ok().headers(headers).body(authResponseStructure
-																.setMessage("Message")
-																.setStatusCode(HttpStatus.OK.value())
-																.setData(mapToAuthResponse(rt.getUser(), refreshExpiration, accessExpiration)));
 	}
 
 }

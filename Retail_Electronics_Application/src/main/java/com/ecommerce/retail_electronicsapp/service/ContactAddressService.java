@@ -12,14 +12,14 @@ import com.ecommerce.retail_electronicsapp.utility.ResponseStructure;
 
 public interface ContactAddressService {
 
-	ResponseEntity<ResponseStructure<Address>> addAddressToUser(AddressRequest addressRequest, String accessToken);
+	ResponseEntity<ResponseStructure<Address>> addAddressToUser(AddressRequest addressRequest);
 
-	ResponseEntity<ResponseStructure<List<Contact>>> addContactsToAddress(String accessToken, int addressId, List<ContactRequest> contactRequests);
+	ResponseEntity<ResponseStructure<List<Contact>>> addContactsToAddress(int addressId, List<ContactRequest> contactRequests);
 
-	ResponseEntity<ResponseStructure<List<Address>>> fetchAddress(String accessToken);
+	ResponseEntity<ResponseStructure<List<Address>>> fetchAddresses();
 
-	ResponseEntity<ResponseStructure<Address>> updateAddress(int addressId, AddressRequest addressRequest, String accessToken);
+	ResponseEntity<ResponseStructure<Address>> updateAddress(int addressId, AddressRequest addressRequest);
 
-	ResponseEntity<ResponseStructure<Contact>> updateContact(String accessToken, int contactId, ContactRequest contactRequest);
+	ResponseEntity<ResponseStructure<Contact>> updateContact(int contactId, ContactRequest contactRequest);
 
 }

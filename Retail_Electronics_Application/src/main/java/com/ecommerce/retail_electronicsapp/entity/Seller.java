@@ -1,6 +1,10 @@
 package com.ecommerce.retail_electronicsapp.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -14,4 +18,7 @@ public class Seller extends User {
 
 	@OneToOne
 	private Address address;
+	@OneToMany
+	private List<Product> products=new ArrayList<>();
+	
 }

@@ -16,4 +16,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Inte
 
 	List<RefreshToken> findAllByExpirationLessThan(Date date);
 
+	boolean existsByToken(String refreshToken);
+
 }

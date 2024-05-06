@@ -70,21 +70,21 @@ const Login = () => {
     //event object destructured here
     if (name === 'username') {
       setFormData({ ...formData, username: value });
-      if (value==='') setUsernameInputError(false);
+      if (value === '') setUsernameInputError(false);
       else if (!usernameRegex.test(value)) setUsernameInputError(true);
       else setUsernameInputError(false);
     }
     else if (name === 'password') {
       setFormData({ ...formData, password: value });
-      if (value==='') setPassInputError(false);
+      if (value === '') setPassInputError(false);
       else if (!passwordRegex.test(value)) setPassInputError(true);
       else setPassInputError(false);
     }
   };
 
-  useEffect(() => {
-
-  }, []);
+  useEffect(()=>{
+    
+  },[])
 
   return (
     <div className="flex justify-center bg-gray-300 items-center py-24">
