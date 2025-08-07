@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import VerifyOTP from '../Public/VerifyOTP'
 import Cart from './../Private/Customer/Cart';
 import WishList from './../Private/Customer/WishList';
@@ -6,76 +6,91 @@ import AddAddress from './../Private/Common/AddAddress';
 import EditProfile from './../Private/Common/EditProfile';
 import SellerDashboard from './../Private/Seller/SellerDashboard';
 import AddProduct from './../Private/Seller/AddProduct';
-import { Route, Routes } from 'react-router-dom';
+import { Outlet, Route, Routes } from 'react-router-dom';
 import Login from './../Public/Login';
 import Register from './../Public/Register';
 import Home from './../Public/Home';
 import Orders from './../Private/Customer/Orders';
 import App from './../App';
 import Explore from './../Private/Customer/Explore';
+import { useAuth } from './../Auth/AuthProvider';
+import ViewProducts from '../Private/Seller/ViewProducts';
 
 const AllRoutes = () => {
 
-    // null or undefined works too
-    // when user directly access URLs we create dummy userAuth object whose role is  authenticated value is false
-    const userAuth= {
-        userId:123,
-        email:'veeru17@gmail.com',
-        username:"Veeru",
-        accessExpiration:3600,
-        refreshExpiration:1296000,
-        authenticated:false,
-        role:"CUSTOMER"
-    }
+    const [routes, setRoutes] = useState([]);
+    const [role, setRole] = useState("");
+    // when user directly access URLs we create dummy userAuth context object whose role is CUST authenticated value is false
+    // dummy user by default will be available everywhere
+    const { user } = useAuth()
+    const { authenticated, userRole } = user;
 
-    let routes=[]
-
-    if(userAuth!=null || userAuth!=undefined){
-        const {authenicated,role}=userAuth;
-        if(authenicated){
-            (role=='SELLER')?
-                routes.push(
-                    <Route key={'seller-dashboard'} path='/seller-dashboard' element={<SellerDashboard/>} />,
-                    <Route key={'add-product'} path='/add-product' element={<AddProduct/>} />,
-                ):(role=='CUSTOMER')    &&  routes.push(
-                            <Route key={'orders'} path='/orders' element={<Orders/>} />,
-                            <Route key={'cart'} path='/cart' element={<Cart/>} />,
-                            <Route key={'wishlist'} path='/wishlist' element={<WishList/>} />,
-                            <Route key={'explore'} path='/explore' element={<Explore/>} />
-                        )
-            //common routes only if authenticated
-            routes.push(
-                <Route key={'add-address'} path='/add-address' element={<AddAddress/>} />,
-                <Route key={'account'} path='/account' element={<EditProfile/>} />,
-                <Route key={'home'} path='/' element={<Home/>} />
-            )
+    const validateAndRenderRoutes = () => {
+        if (authenticated) {
+            console.log(userRole);
+            setRoutes([]);
+            setRole(userRole);
+        } else {
+            //if not authenticated he'll stil be dummy user
+            setRoutes([
+                <Route key={"verify-otp"} path="/verify-otp" element={<VerifyOTP />} />,
+                <Route key={"login"} path="/login" element={<Login />} />,
+                <Route key={"register"} path="/register" element={<Register role={"CUSTOMER"} />} />,
+                <Route key={"register-seller"} path="/register-seller" element={<Register role={"SELLER"} />} />,
+                <Route key={"home"} path="/" element={<Home />} />,
+            ]);
         }
-        else{ //if not authenticated he'll stil be dummy user
-            routes.push(
-                <Route key={'verify-otp'} path='/verify-otp' element={<VerifyOTP/>} />,
-                <Route key={'login'} path='/login' element={<Login/>}/>,
-                <Route key={'register'} path='/register' element={<Register/>}/>,
-                <Route key={'home'} path='/' element={<Home/>} />
-            )
-        }
-    }
-    else{
-        //push a error route here
-        routes.push(
-                <Route key={'verify-otp'} path='/verify-otp' element={<VerifyOTP/>} />,
-                <Route key={'login'} path='/login' element={<Login/>}/>,
-                <Route key={'register'} path='/register' element={<Register/>}/>,
-                <Route key={'home'} path='/' element={<Home/>}/>
-            )
-    }
-    routes.map((route)=>console.log(route.props.path))
 
+        if (!authenticated && !role) {
+            setRole("CUSTOMER");
+        }
+    };
+
+    useEffect(() => validateAndRenderRoutes(), [authenticated, role])
+
+    useEffect(() => {
+
+        if (authenticated) {
+            console.log("is Authentic")
+            if (role === "SELLER") {
+                setRoutes([...routes,
+                <Route key={"seller-dashboard"} path="/seller-dashboard" element={<SellerDashboard />} />,
+                <Route key={"add-product"} path="/add-product" element={<AddProduct />} />,
+                <Route key={"view-products"} path="/view-products" element={<ViewProducts />} />,
+                <Route key={"add-address"} path="/add-address" element={<AddAddress />} />,
+                <Route key={"account"} path="/account" element={<EditProfile />} >
+                </Route>,
+                <Route key={"home"} path="/" element={<Home />} />
+                ])
+            }
+
+            else if (role === "CUSTOMER") {
+                routes.forEach(r => console.log("auth: ", r.props.path))
+                setRoutes([...routes,
+                <Route key={"orders"} path="/orders" element={<Orders />} />,
+                <Route key={"cart"} path="/cart" element={<Cart />} />,
+                <Route key={"wishlist"} path="/wishlist" element={<WishList />} />,
+                <Route key={"explore"} path="/explore" element={<Explore />} />,
+                <Route key={"add-address"} path="/add-address" element={<AddAddress />} />,
+                <Route key={"account"} path="/account" element={<EditProfile />} >
+                    {/* <Route key={"add-address"} path="add-address" element={<AddAddress />} /> */}
+                </Route>,
+                <Route key={"home"} path="/" element={<Home />} />
+                ]);
+            }
+        }
+
+    }, [authenticated, role])
+
+    useEffect(() => {
+        routes.forEach(r => console.log("effect: ", r.props.path))
+    }, [routes]);
     return (
-    <Routes>
-        <Route path='/' element={<App userAuth={userAuth} />}>    
-            {routes}
-        </Route>
-    </Routes>
+        <Routes>
+            <Route path="/" element={<App user={user} />}>
+                {routes}
+            </Route>
+        </Routes>
     )
 }
 

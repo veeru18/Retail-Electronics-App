@@ -1,32 +1,90 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import logo from '../Public/Resources/Electron_Logo.jpg'
 import { TfiMobile } from 'react-icons/tfi';
 import { ImHeadphones } from 'react-icons/im';
 import { AiOutlineLaptop } from 'react-icons/ai';
+import Input from '../Util/Input';
+import Label from '../Util/Label';
+import Button from '../Util/Button';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../Auth/AuthProvider';
+import axios from 'axios';
 
 const Login = () => {
-  let [ formData, setFormData ] = useState({})
-  const [inputValue, setInputValue] = useState('');
-  const [inputError, setInputError] = useState(false);
+  const { user, setUser } = useAuth()
+  const navigate = useNavigate()
+  // const { state } = useLocation();
+  // let response=null
+  // if(state?.success==="register")
+  //   response=state&&state?.userResponse
+  // if(response){
+  //   let {userId,username,isEmailVerified,userRole}=response
+  //   setUser({
+  //     ...user,
+  //     userId:userId,
+  //     username:username,
+  //     userRole:userRole,
+  //     authenticated:isEmailVerified,
+  //     accessExpiration:0,
+  //     refreshExpiration:0
+  //   })
+  // }
+  let [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  })
+  const [usernameInputError, setUsernameInputError] = useState(false);
+  const [passInputError, setPassInputError] = useState(false);
 
-  const regex = /^[a-zA-Z0-9]+$/; // regex to match only alphanumeric characters
+  const passwordRegex = /^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\S+$).{8,}$/;
+  // regex to match atleast one uppercase, one special character, one number and must be 8 characters or more
+  const usernameRegex = /^[a-zA-Z0-9]+[a-zA-Z0-9._%+-]*@gmail\.com$/;
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(formData);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const showOrHidePassHandle = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
   };
-  const handleInputChange = ({target:{name,value}}) => {
-    //event object destructured here
-    setInputValue(value);
 
-    if (!regex.test(value)) {
-      setInputError(true);
-    } else {
-      setInputError(false);
+  const handleSubmit = async () => {
+    try {
+      console.log(formData)
+      let { data: { data } } = await axios.post(`http://localhost:8080/api/re-v1/login`, formData,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          },
+          withCredentials: true
+        });
+      console.log(data)
+      setUser({ ...data, authenticated: true })
+      // hook can't be navigated to another without being inside tags/with no operation done in normal method
+      navigate("/", { state: { success: "login", authResponse: data } });
     }
-    console.log(inputValue,inputError)
-    setFormData({...formData,[name]:value})
+    catch (error) {
+      // console.log(error)
+      alert(error)
+    }
   };
+  const handleInputChange = (name, value) => {
+    //event object destructured here
+    if (name === 'username') {
+      setFormData({ ...formData, username: value });
+      if (value === '') setUsernameInputError(false);
+      else if (!usernameRegex.test(value)) setUsernameInputError(true);
+      else setUsernameInputError(false);
+    }
+    else if (name === 'password') {
+      setFormData({ ...formData, password: value });
+      if (value === '') setPassInputError(false);
+      else if (!passwordRegex.test(value)) setPassInputError(true);
+      else setPassInputError(false);
+    }
+  };
+
+  useEffect(()=>{
+    
+  },[])
 
   return (
     <div className="flex justify-center bg-gray-300 items-center py-24">
@@ -35,7 +93,7 @@ const Login = () => {
           id="loginsec1"
           className="w-[400px] h-[400px] flex flex-col justify-evenly rounded-l-md  items-center bg-blue-700 "
         >
-          <div className='italic -ml-24 mb-20 text-3xl font-bold'>Login</div>
+          <div className='italic -ml-24 text-3xl font-bold'>Login</div>
           <div className='flex'>
             <img className='rounded ' src={logo} alt="" height="100px" width="100px" />
             <AiOutlineLaptop className='mt-auto h-8 w-8' />
@@ -47,36 +105,49 @@ const Login = () => {
           id="loginsec2"
           className="w-[400px] bg-gray-100 rounded-r-md flex justify-around items-center h-[400px] "
         >
-          <form onSubmit={handleSubmit}
+          <div
             id="logsubsec"
             className=" h-[300px] w-[300px] flex flex-col justify-around "
           >
-            <div id="textbox">
-              <span className="floating-label">Enter the Email</span>
-              <input
-                name='email'
-                onChange={handleInputChange}
-                type="text"
-                placeholder="Enter the Email"
-                className="w-full rounded-md focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm font-mono text-2"
-              />
-
-              <span className="mt-2">Enter the Password</span>
-              <input
-                name='password'
-                onChange={handleInputChange}
-                type="password"
-                className="w-full rounded-md focus:outline-blue-500 sm:text-sm h-10 placeholder:italic placeholder:text-gray-400 block pr-3 shadow-sm font-mono text-2"
-                placeholder="Enter the Password"
-              />
-
+            <div id="textbox" className='py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7'>
+              <div className='relative'>
+                <Input id='username'
+                  name='username'
+                  onChange={handleInputChange}
+                  type="text"
+                  placeholder="Enter the Email or Username"
+                />
+                <Label htmlFor="username" label='Username/Email' />
+                {usernameInputError && <p className="text-red-500 text-sm mt-1">Please enter a valid Gmail ID.</p>}
+              </div>
+              <div className='relative'>
+                <Input
+                  id="password"
+                  name="password"
+                  onChange={handleInputChange}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter the Password"
+                />
+                <Label htmlFor="password" label="Password" />
+                <div className="mt-4 flex items-center text-gray-500">
+                  <input
+                    onClickCapture={showOrHidePassHandle}
+                    type="checkbox"
+                    id="showpassword"
+                    name="showpassword"
+                    className="mr-2"
+                  />
+                  <label className="text-sm" htmlFor="showpassword">
+                    Show password
+                  </label>
+                </div>
+                {passInputError && <p className="text-red-500 text-sm mt-1">Password should have 8+ and atleast one uppercase, one special character, one number</p>}
+              </div>
             </div>
             <div className="flex justify-around items-center">
-              <button type='submit' className="p-2 bg-blue-600 hover:bg-blue-800 font-mono rounded-2xl w-[120px] text-white text-xl">
-                Login
-              </button>
+              <Button text='Login' onClick={handleSubmit} />
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

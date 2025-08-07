@@ -10,6 +10,7 @@ public class ErrorStructure<T> {
 	private int statuscode;
 	private String message;
 	private T rootCause;
+	
 	public ErrorStructure<T> setStatuscode(int statuscode) {
 		this.statuscode = statuscode;
 		return this;
